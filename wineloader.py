@@ -15,7 +15,7 @@ WINEDEBUG  = "+loaddll"
 
 ################################################################################
 
-PREFIX     = os.path.normpath(os.path.join(os.path.abspath(__file__), "../.."))
+PREFIX     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WINE       = os.path.join(PREFIX, "libexec", "wine")
 
 if sys.argv[1] in ["--help", "--version"]:
