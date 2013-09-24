@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# WINELOADER
+# Nihonshu - Custom Wine Binary for OS X (Ja)
 #
-# Copyright (C) 2013 mattintosh4, https://github.com/mattintosh4
+# Copyright (C) 2013 mattintosh4, https://github.com/mattintosh4/nihonshu
 
 import os
 import sys
