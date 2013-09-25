@@ -10,8 +10,8 @@ import sys
 from subprocess import check_call
 
 WINEPREFIX = os.path.expanduser("~/.wine")
-LANG       = "ja_JP.UTF-8"
 WINEDEBUG  = "+loaddll"
+LANG       = "ja_JP.UTF-8"
 
 ################################################################################
 
@@ -21,12 +21,15 @@ WINE       = os.path.join(PREFIX, "libexec", "wine")
 if sys.argv[1] in ["--help", "--version"]:
     os.execv(WINE, sys.argv)
 
-os.environ.setdefault("LANG", LANG)
-os.environ.setdefault("WINEDEBUG", WINEDEBUG)
-os.environ.setdefault("WINEPREFIX", WINEPREFIX)
-os.environ.setdefault("WINESERVER", os.path.join(PREFIX, "bin", "wineserver"))
+if "WINEPREFIX" in globals(): os.environ.setdefault("WINEPREFIX", WINEPREFIX)
+if "WINEDEBUG"  in globals(): os.environ.setdefault("WINEDEBUG",  WINEDEBUG)
+if "LANG"       in globals(): os.environ.setdefault("LANG",       LANG)
 
-if not os.path.exists(os.getenv("WINEPREFIX")):
+if "WINEPREFIX" in os.environ:
+    WINEPREFIX = os.getenv("WINEPREFIX")
+else:
+    WINEPREFIX = os.path.expanduser("~/.wine")
+if not os.path.exists(WINEPREFIX):
     os.makedirs(WINEPREFIX)
     check_call([WINE, "rundll32.exe", "setupapi.dll,InstallHinfSection", "DefaultInstall", "128",
                 os.path.join(PREFIX, "share/wine/osx-wine.inf")])
