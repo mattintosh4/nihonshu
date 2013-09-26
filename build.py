@@ -899,6 +899,11 @@ def build_zlib():
         binMake(name)
 # ============================================================================ #
 def finalize():
+    for f in [os.path.exists(W_DATADIR, 'nihonshu')]:
+        if not os.path.exists(f): os.makedirs(f)
+        shutil.copy(os.path.join(PROJECT_ROOT, 'LICENSE'),
+                    os.path.join(f,            'LICENSE'))
+
     for f in glob(os.path.join(W_LIBDIR, '*')):
         if f.endswith(('.a', '.la')):
             os.remove(f)
