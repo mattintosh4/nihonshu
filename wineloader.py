@@ -10,13 +10,14 @@ import sys
 from subprocess import check_call
 
 WINEPREFIX = os.path.expanduser("~/.wine")
-WINEDEBUG  = "+loaddll"
+#WINEDEBUG  = "+loaddll"
 LANG       = "ja_JP.UTF-8"
 
 ################################################################################
 
-PREFIX     = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WINE       = os.path.join(PREFIX, "libexec", "wine")
+PREFIX      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WINE        = os.path.join(PREFIX, "libexec", "wine")
+PLUGINDIR   = os.path.join(PREFIX, 'share/wine/plugin')
 
 if sys.argv[1] in ["--help", "--version"]:
     os.execv(WINE, sys.argv)
@@ -31,9 +32,12 @@ else:
     WINEPREFIX = os.path.expanduser("~/.wine")
 if not os.path.exists(WINEPREFIX):
     os.makedirs(WINEPREFIX)
-    check_call([WINE, "rundll32.exe", "setupapi.dll,InstallHinfSection", "DefaultInstall", "128",
-                os.path.join(PREFIX, "share/wine/osx-wine.inf")])
+    import init_wine
+    init_wine.PREFIX    = PREFIX
+    init_wine.WINE      = WINE
+    init_wine.PLUGINDIR = PLUGINDIR
+    init_wine.main()
 
-print >> sys.stderr, "\033[32m%s\033[m" % " ".join(sys.argv[1:])
+print >> sys.stderr, "\033[4;32m%s\033[m" % " ".join(sys.argv[1:])
 
 os.execv(WINE, sys.argv)
