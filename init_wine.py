@@ -34,8 +34,8 @@ def cabextract(*args):
 #-------------------------------------------------------------------------------
 
 def load_inf():
-    inf1 = os.path.join(PLUGINDIR, 'osx-wine.inf')
-    rundll32(inf1)
+    inf = os.path.join(PLUGINDIR, 'inf/osx-wine.inf')
+    rundll32(inf)
 
 def load_dx9():
     def load_dx9_feb2010():
@@ -43,9 +43,9 @@ def load_dx9():
 
         ### 2k mode ###
         message('Installing DirectX 9 (phase 1)')
-        wine('regedit.exe', os.path.join(PLUGINDIR, 'win2k.reg'))
+        wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/win2k.reg'))
         wine(src, '/silent', check=False)
-        wine('regedit.exe', os.path.join(PLUGINDIR, 'winxp.reg'))
+        wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
         wine('wineboot.exe', '-r')
         
         ### XP mode ###
@@ -138,7 +138,7 @@ def load_dx9():
         """.split():
             wine('regsvr32.exe', f)
 
-    inf = os.path.join(PLUGINDIR, 'dxredist.inf')
+    inf = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
     rundll32(inf)
     load_dx9_feb2010()
     load_dx9_jun2010()
@@ -171,7 +171,7 @@ def load_vcrun():
         src = os.path.join(PLUGINDIR, 'vcrun2010sp1/vcredist_x86.exe')
         wine(src, '/q')
 
-    inf = os.path.join(PLUGINDIR, 'vcredist.inf')
+    inf = os.path.join(PLUGINDIR, 'inf/vcredist.inf')
     rundll32(inf)
     load_vcrun60()
     load_vcrun2005()
