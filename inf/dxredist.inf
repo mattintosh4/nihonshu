@@ -1,0 +1,182 @@
+[version]
+signature = "$CHICAGO$"
+
+[DefaultInstall]
+AddReg   = DllOverrides
+DelFiles = DelFilesSection
+
+[DllOverrides]
+HKCU,%DllOverrides%,"amstream"        ,,"native"
+HKCU,%DllOverrides%,"d3d8"            ,,"builtin,native"
+HKCU,%DllOverrides%,"d3d9"            ,,"builtin,native"
+HKCU,%DllOverrides%,"d3dcompiler_33"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_34"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_35"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_36"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_37"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_38"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_39"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_40"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_41"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_42"  ,,"native"
+HKCU,%DllOverrides%,"d3dcompiler_43"  ,,"native"
+HKCU,%DllOverrides%,"d3dim"           ,,"native"
+HKCU,%DllOverrides%,"d3drm"           ,,"native"
+HKCU,%DllOverrides%,"d3dx9_24"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_25"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_26"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_27"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_28"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_29"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_30"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_31"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_32"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_33"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_34"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_35"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_36"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_37"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_38"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_39"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_40"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_41"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_42"        ,,"native"
+HKCU,%DllOverrides%,"d3dx9_43"        ,,"native"
+HKCU,%DllOverrides%,"d3dx10_33"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_34"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_35"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_36"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_37"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_38"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_39"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_40"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_41"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_42"       ,,"native"
+HKCU,%DllOverrides%,"d3dx10_43"       ,,"native"
+HKCU,%DllOverrides%,"d3dx11_42"       ,,"native"
+HKCU,%DllOverrides%,"d3dx11_43"       ,,"native"
+HKCU,%DllOverrides%,"d3dxof"          ,,"native"
+;HKCU,%DllOverrides%,"ddrawex"         ,,"native"
+HKCU,%DllOverrides%,"devenum"         ,,"native"
+HKCU,%DllOverrides%,"dinput8"         ,,"native"
+HKCU,%DllOverrides%,"dinput"          ,,"native"
+HKCU,%DllOverrides%,"dmband"          ,,"native"
+HKCU,%DllOverrides%,"dmcompos"        ,,"native"
+HKCU,%DllOverrides%,"dmime"           ,,"native"
+HKCU,%DllOverrides%,"dmloader"        ,,"native"
+HKCU,%DllOverrides%,"dmscript"        ,,"native"
+HKCU,%DllOverrides%,"dmstyle"         ,,"native"
+HKCU,%DllOverrides%,"dmsynth"         ,,"native"
+HKCU,%DllOverrides%,"dmusic"          ,,"native"
+HKCU,%DllOverrides%,"dplayx"          ,,"native"
+HKCU,%DllOverrides%,"dpnaddr"         ,,"native"
+HKCU,%DllOverrides%,"dpnet"           ,,"native"
+HKCU,%DllOverrides%,"dpnhpast"        ,,"native"
+HKCU,%DllOverrides%,"dpnlobby"        ,,"native"
+HKCU,%DllOverrides%,"dpwsockx"        ,,"native"
+HKCU,%DllOverrides%,"dsound"          ,,"builtin,native"
+HKCU,%DllOverrides%,"dswave"          ,,"native"
+HKCU,%DllOverrides%,"dxdiagn"         ,,"native"
+HKCU,%DllOverrides%,"dxdiag.exe"      ,,"native"
+HKCU,%DllOverrides%,"joy.cpl"         ,,"native"
+HKCU,%DllOverrides%,"mciqtz32"        ,,"native"
+HKCU,%DllOverrides%,"msdmo"           ,,"native"
+HKCU,%DllOverrides%,"qcap"            ,,"native"
+HKCU,%DllOverrides%,"qedit"           ,,"native"
+HKCU,%DllOverrides%,"quartz"          ,,"native"
+HKCU,%DllOverrides%,"xapofx1_1"       ,,"native"
+HKCU,%DllOverrides%,"xinput1_1"       ,,"native"
+HKCU,%DllOverrides%,"xinput1_2"       ,,"native"
+HKCU,%DllOverrides%,"xinput1_3"       ,,"native"
+HKCU,%DllOverrides%,"xinput9_1_0"     ,,"native"
+
+[DelFilesSection]
+d3d8.dll
+d3d9.dll
+d3dcompiler_33.dll
+d3dcompiler_34.dll
+d3dcompiler_35.dll
+d3dcompiler_36.dll
+d3dcompiler_37.dll
+d3dcompiler_38.dll
+d3dcompiler_39.dll
+d3dcompiler_40.dll
+d3dcompiler_41.dll
+d3dcompiler_42.dll
+d3dcompiler_43.dll
+d3dim.dll
+d3drm.dll
+d3dx9_24.dll
+d3dx9_25.dll
+d3dx9_26.dll
+d3dx9_27.dll
+d3dx9_28.dll
+d3dx9_29.dll
+d3dx9_30.dll
+d3dx9_31.dll
+d3dx9_32.dll
+d3dx9_33.dll
+d3dx9_34.dll
+d3dx9_35.dll
+d3dx9_36.dll
+d3dx9_37.dll
+d3dx9_38.dll
+d3dx9_39.dll
+d3dx9_40.dll
+d3dx9_41.dll
+d3dx9_42.dll
+d3dx9_43.dll
+d3dx10_33.dll
+d3dx10_34.dll
+d3dx10_35.dll
+d3dx10_36.dll
+d3dx10_37.dll
+d3dx10_38.dll
+d3dx10_39.dll
+d3dx10_40.dll
+d3dx10_41.dll
+d3dx10_42.dll
+d3dx10_43.dll
+d3dx11_42.dll
+d3dx11_43.dll
+d3dxof.dll
+ddraw.dll
+;ddrawex.dll
+dinput.dll
+dinput8.dll
+dmband.dll
+dmcompos.dll
+dmime.dll
+dmloader.dll
+dmscript.dll
+dmstyle.dll
+dmsynth.dll
+dmusic.dll
+dplayx.dll
+dpnaddr.dll
+dpnet.dll
+dpnhpast.dll
+dpnhupnp.dll
+dpnlobby.dll
+dpwsockx.dll
+dsound.dll
+dsound.vxd
+dsound3d.dll
+dswave.dll
+dxdiag.exe
+dxdiagn.dll
+joy.cpl
+mciqtz32.dll
+msdmo.dll
+qcap.dll
+qedit.dll
+quartz.dll
+xapofx1_1.dll
+xinput1_1.dll
+xinput1_2.dll
+xinput1_3.dll
+xinput1_4.dll
+xinput9_1_0.dll
+
+[Strings]
+DllOverrides = Software\Wine\DllOverrides

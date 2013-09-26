@@ -1,0 +1,21 @@
+[version]
+signature = "$CHICAGO$"
+
+[DefaultInstall]
+AddReg   = DllOverrides
+DelFiles = DelFilesSection
+
+[DllOverrides]
+HKCU,%DllOverrides%,"comcat"      ,,"native,builtin"
+HKCU,%DllOverrides%,"oleaut32"    ,,"native,builtin"
+HKCU,%DllOverrides%,"olepro32"    ,,"native,builtin"
+HKCU,%DllOverrides%,"stdole2.tlb" ,,"native,builtin"
+
+[DelFilesSection]
+comcat.dll
+oleaut32.dll
+olepro32.dll
+stdole2.tlb
+
+[Strings]
+DllOverrides = Software\Wine\DllOverrides
