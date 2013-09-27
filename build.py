@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from subprocess import *
-from glob import glob
 import os
 import re
 import sys
@@ -726,7 +725,11 @@ def build_readline():
     if not binCheck(name):
         reposcopy(name)
         git_checkout()
-        patch("/usr/local/src/NXWine/patches/readline.patch")
+        vsh("""
+patch -Np1 < {f}
+""".format(
+    f = os.path.join(PROJECT_ROOT, 'osx-wine-patch/readline.patch')
+))
         configure("--enable-multibyte", "--with-curses")
         make_install(archive=name)
 # ----------------------------------------------------------------------------- sane-backends
@@ -891,9 +894,14 @@ def finalize():
         shutil.copy(os.path.join(PROJECT_ROOT, 'LICENSE'),
                     os.path.join(f,            'LICENSE'))
 
-    for f in glob(os.path.join(W_LIBDIR, '*')):
-        if f.endswith(('.a', '.la')):
-            os.remove(f)
+    vsh("""
+find __W_LIBDIR__ -name "*.a" -o -name "*.la" -exec rm -rf {} +
+rm -f  __W_LIBDIR__/charset.alias
+rm -rf __W_LIBDIR__/gio
+rm -rf __W_LIBDIR__/glib-2.0
+rm -rf __W_LIBDIR__/libffi-3.0.13
+rm -rf __W_LIBDIR__/pkgconfig
+""".replace('__W_LIBDIR__', W_LIBDIR))
 
     os.chdir(W_PREFIX)
     shutil.rmtree(prefix)
