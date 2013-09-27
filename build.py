@@ -895,7 +895,14 @@ def finalize():
                     os.path.join(f,            'LICENSE'))
 
     vsh("""
-find __W_LIBDIR__ -name "*.a" -o -name "*.la" -exec rm -rf {} +
+(
+    set +e
+    find __W_LIBDIR__ -type f \\! -regex '__W_LIBDIR__/wine/.*' -a \\( -name '*.a' -o -name '*.la' \\) |
+    while read f
+    do
+        rm -vf $f
+    done
+)
 rm -f  __W_LIBDIR__/charset.alias
 rm -rf __W_LIBDIR__/gio
 rm -rf __W_LIBDIR__/glib-2.0
