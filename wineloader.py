@@ -41,8 +41,8 @@ if "WINEPREFIX" in os.environ:
 else:
     WINEPREFIX = os.path.expanduser("~/.wine")
 
-if not os.path.exists(WINEPREFIX):
-    os.makedirs(WINEPREFIX)
+if not os.path.exists(os.path.join(WINEPREFIX, "drive_c")):
+    check_call([WINE, "wineboot.exe", "--init"])
     import init_wine
     init_wine.PREFIX    = PREFIX
     init_wine.WINE      = WINE
