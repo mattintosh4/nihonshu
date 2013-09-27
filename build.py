@@ -360,28 +360,17 @@ def build_windows_tools():
     shutil.copytree(vcrun2010, os.path.join(dst, 'vcrun2010sp1'))
 
     for f in ['init_wine.py']:
-#        os.symlink(os.path.join(PROJECT_ROOT, f),
-#                   os.path.join(W_BINDIR, f))
         shutil.copy(os.path.join(PROJECT_ROOT, f),
                     os.path.join(W_BINDIR, f))
 
 
     for f in ['osx-wine.inf']:
-#        os.symlink(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
-#                   os.path.join(dst, 'inf', f))
         shutil.copy(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
                     os.path.join(dst, 'inf', f))
 
     for f in [
         'dxredist.inf',
         'vcredist.inf',
-    ]:
-#        os.symlink(os.path.join(PROJECT_ROOT, 'inf', f),
-#                   os.path.join(dst, 'inf', f))
-        shutil.copy(os.path.join(PROJECT_ROOT, 'inf', f),
-                    os.path.join(dst, 'inf', f))
-
-    for f in [
         'win2k.reg',
         'winxp.reg',
     ]:
@@ -843,19 +832,14 @@ make install
     os.chmod(os.path.join(W_BINDIR, 'wine'), 0755)
 # ----------------------------------------------------------------------------- winetricks / cabextract
 def build_winetricks():
+
     def build_cabextract():
         name = "cabextract-1.4"
         message(name)
         if not binCheck(name):
             extract(os.path.join("/usr/local/src/repos/tarballs", name + ".tar.gz"), "cabextract-1.4")
-            vsh("""
-./configure \
---prefix={prefix} \
---build={triple}
-""".format(
-        prefix = W_PREFIX,
-        triple = triple,
-    ))
+            vsh("""./configure --prefix={prefix} --build={triple}""".format(prefix = W_PREFIX,
+                                                                            triple = triple))
             make_install(archive=name)
     build_cabextract()
 
@@ -902,7 +886,7 @@ def build_zlib():
         binMake(name)
 # ============================================================================ #
 def finalize():
-    for f in [os.path.exists(W_DATADIR, 'nihonshu')]:
+    for f in [os.path.join(W_DATADIR, 'nihonshu')]:
         if not os.path.exists(f): os.makedirs(f)
         shutil.copy(os.path.join(PROJECT_ROOT, 'LICENSE'),
                     os.path.join(f,            'LICENSE'))
