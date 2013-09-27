@@ -13,6 +13,7 @@ HKCU,%DllOverrides%,"stdole2.tlb" ,,"native,builtin"
 
 [DelFilesSection]
 comcat.dll
+msvcrt.dll
 oleaut32.dll
 olepro32.dll
 stdole2.tlb

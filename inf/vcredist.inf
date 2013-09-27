@@ -44,7 +44,7 @@ HKCU,%DllOverrides%,"msvcp100"    ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcr100"    ,,"native,builtin"
 HKCU,%DllOverrides%,"vcomp100"    ,,"native,builtin"
 
-[DelFilesSection
+[DelFilesSection]
 atl.dll
 comcat.dll
 msvcirt.dll

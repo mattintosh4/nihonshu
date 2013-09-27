@@ -360,8 +360,11 @@ def build_windows_tools():
     shutil.copytree(vcrun2010, os.path.join(dst, 'vcrun2010sp1'))
 
     for f in ['init_wine.py']:
-        os.symlink(os.path.join(PROJECT_ROOT, f),
-                   os.path.join(W_BINDIR,     f))
+#        os.symlink(os.path.join(PROJECT_ROOT, f),
+#                   os.path.join(W_BINDIR, f))
+        shutil.copy(os.path.join(PROJECT_ROOT, f),
+                    os.path.join(W_BINDIR, f))
+
 
     for f in ['osx-wine.inf']:
 #        os.symlink(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
