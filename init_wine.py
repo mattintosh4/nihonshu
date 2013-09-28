@@ -15,10 +15,10 @@ def message(string):
 def wine(*args, **kwargs):
     cmd = [WINE]
     cmd.extend(args)
-    if not 'check' in kwargs:
-        check_call(cmd)
-    elif kwargs['check'] == False:
+    if 'check' in kwargs and kwargs['check'] == False:
         call(cmd)
+    else:
+        check_call(cmd)
 
 def rundll32(path, section='DefaultInstall'):
     if not os.path.exists(path):
@@ -47,7 +47,7 @@ def load_dx9():
         wine(src, '/silent', check=False)
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
         wine('wineboot.exe', '-r')
-        
+
         ### XP mode ###
         message('Installing DirectX 9 (phase 2)')
         wine(src, '/silent', check=False)
@@ -59,83 +59,83 @@ def load_dx9():
         wine(src, '/silent', check=False)
         wine('wineboot.exe', '-r')
 
-        # note: msvidctl.dll failed to register
-        for f in """
-            amstream.dll
-            bdaplgin.ax
-            devenum.dll
-            diactfrm.dll
-            dinput.dll
-            dinput8.dll
-            dmband.dll
-            dmcompos.dll
-            dmime.dll
-            dmloader.dll
-            dmscript.dll
-            dmstyle.dll
-            dmsynth.dll
-            dmusic.dll
-            dplayx.dll
-            dpnet.dll
-            dpnhpast.dll
-            dpnhupnp.dll
-            dpvacm.dll
-            dpvoice.dll
-            dpvvox.dll
-            dsdmo.dll
-            dsdmoprp.dll
-            dswave.dll
-            dx7vb.dll
-            dx8vb.dll
-            dxdiagn.dll
-            encapi.dll
-            ipsink.ax
-            ksolay.ax
-            ksproxy.ax
-            kswdmcap.ax
-            l3codecx.ax
-            mpeg2data.ax
-            mpg2splt.ax
-            msdvbnp.ax
-            mswebdvd.dll
-            psisdecd.dll
-            psisrndr.ax
-            qasf.dll
-            qcap.dll
-            qdv.dll
-            qdvd.dll
-            qedit.dll
-            quartz.dll
-            vbisurf.ax
-            wstdecod.dll
-            xactengine2_0.dll
-            xactengine2_1.dll
-            xactengine2_2.dll
-            xactengine2_3.dll
-            xactengine2_4.dll
-            xactengine2_5.dll
-            xactengine2_6.dll
-            xactengine2_7.dll
-            xactengine2_8.dll
-            xactengine2_9.dll
-            xactengine2_10.dll
-            xactengine3_0.dll
-            xactengine3_1.dll
-            xactengine3_2.dll
-            xactengine3_3.dll
-            xactengine3_4.dll
-            xactengine3_5.dll
-            xactengine3_6.dll
-            xactengine3_7.dll
-            xaudio2_0.dll
-            xaudio2_1.dll
-            xaudio2_2.dll
-            xaudio2_3.dll
-            xaudio2_4.dll
-            xaudio2_5.dll
-            xaudio2_6.dll
-            xaudio2_7.dll
-        """.split():
+        for f in [
+            'amstream.dll'      ,
+            'bdaplgin.ax'       ,
+            'devenum.dll'       ,
+            'diactfrm.dll'      ,
+            'dinput8.dll'       ,
+            'dinput.dll'        ,
+            'dmband.dll'        ,
+            'dmcompos.dll'      ,
+            'dmime.dll'         ,
+            'dmloader.dll'      ,
+            'dmscript.dll'      ,
+            'dmstyle.dll'       ,
+            'dmsynth.dll'       ,
+            'dmusic.dll'        ,
+            'dplayx.dll'        ,
+            'dpnet.dll'         ,
+            'dpnhpast.dll'      ,
+            'dpnhupnp.dll'      ,
+            'dpvacm.dll'        ,
+            'dpvoice.dll'       ,
+            'dpvvox.dll'        ,
+            'dsdmoprp.dll'      ,
+            'dsdmo.dll'         ,
+            'dswave.dll'        ,
+            'dx7vb.dll'         ,
+            'dx8vb.dll'         ,
+            'dxdiagn.dll'       ,
+            'encapi.dll'        ,
+            'ipsink.ax'         ,
+            'ksolay.ax'         ,
+            'ksproxy.ax'        ,
+            'kswdmcap.ax'       ,
+            'l3codecx.ax'       ,
+            'mpeg2data.ax'      ,
+            'mpg2splt.ax'       ,
+            'msdvbnp.ax'        ,
+#            'msvidctl.dll'      , # Failed
+            'mswebdvd.dll'      ,
+            'psisdecd.dll'      ,
+            'psisrndr.ax'       ,
+            'qasf.dll'          ,
+            'qcap.dll'          ,
+            'qdvd.dll'          ,
+            'qdv.dll'           ,
+            'qedit.dll'         ,
+            'quartz.dll'        ,
+            'vbisurf.ax'        ,
+            'wstdecod.dll'      ,
+            'xactengine2_0.dll' ,
+            'xactengine2_1.dll' ,
+            'xactengine2_2.dll' ,
+            'xactengine2_3.dll' ,
+            'xactengine2_4.dll' ,
+            'xactengine2_5.dll' ,
+            'xactengine2_6.dll' ,
+            'xactengine2_7.dll' ,
+            'xactengine2_8.dll' ,
+            'xactengine2_9.dll' ,
+            'xactengine2_10.dll',
+            'xactengine3_0.dll' ,
+            'xactengine3_1.dll' ,
+            'xactengine3_2.dll' ,
+            'xactengine3_3.dll' ,
+            'xactengine3_4.dll' ,
+            'xactengine3_5.dll' ,
+            'xactengine3_6.dll' ,
+            'xactengine3_7.dll' ,
+            'xaudio2_0.dll'     ,
+            'xaudio2_1.dll'     ,
+            'xaudio2_2.dll'     ,
+            'xaudio2_3.dll'     ,
+            'xaudio2_4.dll'     ,
+            'xaudio2_5.dll'     ,
+            'xaudio2_6.dll'     ,
+            'xaudio2_7.dll'     ,
+        ]:
             wine('regsvr32.exe', f)
 
     inf = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
