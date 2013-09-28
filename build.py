@@ -27,6 +27,9 @@ def vsh(script):
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
+#distname        = 'wine_nihonshu'
+distname        = 'wine_nihonshu_dx9'
+
 prefix          = "/usr/local/wine/SharedSupport"
 BUILDROOT       = os.path.join(prefix, "build")
 BINDIR          = os.path.join(prefix, 'bin')
@@ -917,10 +920,11 @@ rm -rf __W_LIBDIR__/pkgconfig
     os.makedirs(prefix)
     os.symlink(W_LIBDIR, LIBDIR)
     vsh("""
-tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{name}_nihonshu.tar.xz
+tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
 """.format(
-        workdir = os.path.dirname(W_PREFIX),
-        name    = os.path.basename(W_PREFIX),
+        workdir  = os.path.dirname(W_PREFIX),
+        name     = os.path.basename(W_PREFIX),
+        distname = distname,
     ))
 
 
