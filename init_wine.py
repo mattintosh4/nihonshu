@@ -20,6 +20,9 @@ def wine(*args, **kwargs):
     else:
         check_call(cmd)
 
+def regsvr32(*args):
+    wine('regsvr32.exe', *args)
+
 def rundll32(path, section='DefaultInstall'):
     if not os.path.exists(path):
         print >> sys.stderr, '%s not found' % path
@@ -59,7 +62,7 @@ def load_dx9():
         wine(src, '/silent', check=False)
         wine('wineboot.exe', '-r')
 
-        for f in [
+        registerdlls = [
             'amstream.dll'      ,
             'bdaplgin.ax'       ,
             'devenum.dll'       ,
@@ -135,8 +138,8 @@ def load_dx9():
             'xaudio2_5.dll'     ,
             'xaudio2_6.dll'     ,
             'xaudio2_7.dll'     ,
-        ]:
-            wine('regsvr32.exe', f)
+        ]
+        regsvr32(*registerdlls)
 
     inf = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
     rundll32(inf)
@@ -153,8 +156,14 @@ def load_vcrun():
         message('Installing Visual C++ 6.0')
         src = os.path.join(PLUGINDIR, 'vcrun60/vcredist.exe')
         wine(src, '/q', check=False)
-        for f in ['atl.dll', 'comcat.dll', 'mfc42.dll', 'oleaut32.dll', 'olepro32.dll']:
-            wine('regsvr32', f)
+        registerdlls = [
+            'atl.dll'       ,
+            'comcat.dll'    ,
+            'mfc42.dll'     ,
+            'oleaut32.dll'  ,
+            'olepro32.dll'  ,
+        ]
+        regsvr32(*registerdlls)
 
     def load_vcrun2005():
         message('Installing Visual C++ 2005')
