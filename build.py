@@ -701,10 +701,11 @@ def build_lcms():
         make_install(archive=name)
 # ----------------------------------------------------------------------------- mpg123
 def build_mpg123():
-    name = "mpg123-1.15.4"
+    name = "mpg123"
     message(name)
     if not binCheck(name):
-        extract(os.path.join("/usr/local/src/tarballs", name + ".tar.bz2"), name)
+        reposcopy(name)
+        autoreconf()
         configure(
             "--with-default-audio=coreaudio",
             "--with-optimization=0",
