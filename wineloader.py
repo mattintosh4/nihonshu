@@ -41,13 +41,23 @@ if "WINEPREFIX" in os.environ:
 else:
     WINEPREFIX = os.path.expanduser("~/.wine")
 
-if not os.path.exists(os.path.join(WINEPREFIX, "drive_c")):
+if (
+    not os.path.exists(os.path.join(WINEPREFIX, "drive_c"))
+    or
+    sys.argv[1] == "--force-init"
+):
     check_call([WINE, "wineboot.exe", "--init"])
+    if sys.argv[1] == "--skip-init": sys.exit()
+
     import init_wine
     init_wine.PREFIX    = PREFIX
     init_wine.WINE      = WINE
     init_wine.PLUGINDIR = PLUGINDIR
+
+    init_wine.load_inf()
+    if sys.argv[1] == "--suppress-init": sys.exit()
     init_wine.main()
+    if sys.argv[1] == "--force-init": sys.exit()
 
 print >> sys.stderr, "\033[4;32m%s\033[m" % " ".join(sys.argv[1:])
 
