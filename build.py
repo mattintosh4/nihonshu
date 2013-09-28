@@ -491,10 +491,11 @@ def build_gnutls():
 #    build_libidn()
 
     def build_p11kit():
-        name = "p11-kit-0.20.1"
+        name = "p11-kit"
         message(name)
         if not binCheck(name):
-            extract(os.path.join("/usr/local/src/tarballs", name + ".tar.gz"), name)
+            reposcopy(name)
+            autogen()
             configure(
                 "--disable-coverage",
                 "--disable-debug",
@@ -506,7 +507,7 @@ def build_gnutls():
                 "--without-trust-paths",
             )
             make_install(archive=name)
-#    build_p11kit()
+    build_p11kit()
 
     name = "gnutls"
     message(name)
@@ -526,7 +527,7 @@ def build_gnutls():
             "--disable-silent-rules",
             "--disable-tests",
             "--enable-threads=posix",
-            "--without-p11-kit",
+#            "--without-p11-kit",
         )
         make_install(archive=name)
 # ----------------------------------------------------------------------------- guile
