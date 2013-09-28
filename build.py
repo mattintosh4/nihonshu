@@ -43,6 +43,7 @@ SYSCONFDIR      = os.path.join(prefix, 'etc')
 W_PREFIX        = '/usr/local/wine'
 W_BINDIR        = os.path.join(W_PREFIX, 'bin')
 W_DATADIR       = os.path.join(W_PREFIX, 'share')
+W_DOCDIR        = os.path.join(W_DATADIR, 'doc')
 W_INCDIR        = os.path.join(W_PREFIX, 'include')
 W_LIBDIR        = os.path.join(W_PREFIX, 'lib')
 W_LIBEXECDIR    = os.path.join(W_PREFIX, 'libexec')
@@ -894,7 +895,9 @@ def build_zlib():
         binMake(name)
 # ============================================================================ #
 def finalize():
-    for f in [os.path.join(W_DATADIR, 'nihonshu')]:
+    os.chdir(W_PREFIX)
+
+    for f in [os.path.join(W_DATADIR, 'doc/nihonshu')]:
         if not os.path.exists(f): os.makedirs(f)
         shutil.copy(os.path.join(PROJECT_ROOT, 'LICENSE'),
                     os.path.join(f,            'LICENSE'))
@@ -915,7 +918,7 @@ rm -rf __W_LIBDIR__/libffi-3.0.13
 rm -rf __W_LIBDIR__/pkgconfig
 """.replace('__W_LIBDIR__', W_LIBDIR))
 
-    os.chdir(W_PREFIX)
+    shutil.rmtree(os.path.join(W_DATADIR, 'applications'))
     shutil.rmtree(prefix)
     os.makedirs(prefix)
     os.symlink(W_LIBDIR, LIBDIR)
