@@ -16,9 +16,6 @@ def get_stdout(cmd, *args):
     else:
         sys.exit(retcode)
 
-def get_macports_path(name):
-    return get_stdout('sh', '-c', '''PATH=/opt/local/bin type -P {name}'''.format(name = name))
-
 def vsh(script):
     ps = Popen(["sh", "-ve"], stdin=PIPE)
     ps.communicate(script)
@@ -69,54 +66,18 @@ for f in [
 
 os.symlink(W_LIBDIR, LIBDIR)
 
+import build_preset as my
+my.PREFIX = prefix
+my.main()
 
-
-_osx_ver    = get_stdout("sw_vers", "-productVersion")[0:4]
-_dev_root   = get_stdout("xcode-select", "-print-path")
-_sdk_root   = Popen(["sh", "-v"], stdin=PIPE, stdout=PIPE).communicate("""\
-xcodebuild -version -sdk macosx{version} | sed -n '/^Path: /s///p'
-""".format(version=_osx_ver))[0].strip()
-
-
-
-### COMPILER SETTINGS ###
-_mp_ccache  = get_macports_path("ccache")
-_mp_gcc     = get_macports_path("gcc-apple-4.2")
-_mp_gxx     = get_macports_path("g++-apple-4.2")
-_mp_clang   = get_macports_path("clang-mp-3.3")
-_mp_clangxx = get_macports_path("clang++-mp-3.3")
-
-#CCACHE      = _mp_ccache
-CCACHE      = '/usr/local/bin/ccache'
-GCC         = os.path.basename(_mp_gcc)
-GXX         = os.path.basename(_mp_gxx)
-CLANG       = os.path.basename(_mp_clang)
-CLANGXX     = os.path.basename(_mp_clangxx)
-GIT         = "/usr/local/git/bin/git"
-
-os.symlink(CCACHE, os.path.join(BINDIR, GCC))
-os.symlink(CCACHE, os.path.join(BINDIR, GXX))
-os.symlink(CCACHE, os.path.join(BINDIR, CLANG))
-os.symlink(CCACHE, os.path.join(BINDIR, CLANGXX))
-
-os.environ["CCACHE_PATH"]     = "/opt/local/bin"
-os.environ["CCACHE_DIR"]      = os.path.expanduser("~/.ccache")
-
-
-### ENVIRONMENT ###
-os.environ["SHELL"]             = '/bin/bash'
-os.environ["TERM"]              = 'xterm'
-os.environ["COMMAND_MODE"]      = 'unix2003'
-os.environ["LANG"]              = 'C'
-os.environ["gt_cv_locale_ja"]   = 'ja_JP.UTF-8'
-os.environ["PATH"]              = ':'.join([BINDIR,
-                                            os.path.dirname(GIT),
-                                            '/usr/bin:/bin:/usr/sbin:/sbin',
-                                          ])
+CCACHE  = my.CCACHE
+GCC     = my.GCC
+GXX     = my.GXX
+CLANG   = my.CLANG
+CLANGXX = my.CLANGXX
+GIT     = os.getenv('GIT')
 
 ncpu        = str(int(get_stdout("sysctl", "-n", "hw.ncpu")) + 1)
-arch_flags  = "-m32 -arch i386"
-opt_flags   = "-O2 -march=core2 -mtune=core2"
 triple      = "i686-apple-darwin" + os.uname()[2]
 
 configure_format = dict(prefix    = prefix,
@@ -126,55 +87,13 @@ configure_format = dict(prefix    = prefix,
                         cxx       = CLANGXX,
                         gcc       = GCC,
                         gxx       = GXX,
-                        archflags = arch_flags,
-                        optflags  = opt_flags,
-                        sdkroot   = _sdk_root,
-                        osxver    = _osx_ver,
+                        archflags = my.archflags,
+                        optflags  = my.optflags,
+                        sdkroot   = my.sdkroot,
+                        osxver    = my.osx_ver,
                         incdir    = INCDIR,
                         libdir    = LIBDIR)
 
-os.environ["MACOSX_DEPLOYMENT_TARGET"] = _osx_ver
-os.environ["CC"]        = os.path.basename(GCC)
-os.environ["CXX"]       = os.path.basename(GXX)
-os.environ["CFLAGS"]    = "{archflags} {optflags}".format(**configure_format)
-os.environ["CXXFLAGS"]  = os.getenv("CFLAGS")
-os.environ["CPPFLAGS"]  = "-isysroot {sdkroot} -I{incdir}".format(**configure_format)
-os.environ["LDFLAGS"]   = "\
--Wl,-search_paths_first,-headerpad_max_install_names \
--Wl,-syslibroot,{sdkroot} \
--Wl,-arch,i386 \
--L{libdir}".format(**configure_format)
-
-
-def env_external_tools():
-    search_target = (
-        "aclocal",
-        "autoconf",
-        "autoheader",
-        "autom4te",
-        "automake",
-        "autopoint",
-        "autoreconf",
-        "fontforge",
-        "nasm",
-        "yasm",
-    )
-    for f in search_target:
-        os.environ[f.upper()] = get_macports_path(f)
-
-    os.environ["HELP2MAN"]      = get_macports_path("help2man") # required from libtasn1
-    os.environ["INSTALL"]       = get_macports_path("ginstall")
-    os.environ["LIBTOOLIZE"]    = get_macports_path("glibtoolize")
-    os.environ["M4"]            = get_macports_path("gm4")
-    os.environ["MAKE"]          = get_macports_path("gmake")
-    os.environ["ACLOCAL_PATH"]  = ":".join([os.path.join(prefix, "share", "aclocal"),
-                                            os.path.join("/opt/local/share/aclocal")])
-env_external_tools()
-
-os.environ["PKG_CONFIG"]        = get_macports_path("pkg-config")
-os.environ["PKG_CONFIG_LIBDIR"] = ":".join([os.path.join(prefix, "lib",   "pkgconfig"),
-                                            os.path.join(prefix, "share", "pkgconfig"),
-                                            "/usr/lib/pkgconfig"])
 
 check_call(["sh", "-c", "declare"])
 
@@ -276,7 +195,7 @@ def make_uninstall():
 
 
 def git_checkout(branch="master"):
-    check_call(["git", "checkout", "-f", branch])
+    check_call([GIT, "checkout", "-f", branch])
 
 
 def patch(*args):
