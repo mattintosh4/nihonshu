@@ -48,9 +48,8 @@ W_INCDIR        = os.path.join(W_PREFIX, 'include')
 W_LIBDIR        = os.path.join(W_PREFIX, 'lib')
 W_LIBEXECDIR    = os.path.join(W_PREFIX, 'libexec')
 
-DEPOSROOT       = "/usr/local/wine_depos"
-REPOSROOT       = "/usr/local/src/repos"
-TARSROOT        = "/usr/local/src/tarballs"
+DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
+SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
 
 if os.path.exists(W_PREFIX):
     shutil.rmtree(W_PREFIX)
@@ -218,7 +217,7 @@ autoreconf = autotools.autoreconf
 
 
 def copytree(name):
-    src = os.path.join(REPOSROOT, name)
+    src = os.path.join(SRCROOT,   name)
     dst = os.path.join(BUILDROOT, name)
 
     shutil.copytree(src, dst)
@@ -290,6 +289,7 @@ def message(*args):
 
 
 def extract(src, dst):
+    src = os.path.join(SRCROOT, src)
     os.chdir(BUILDROOT)
     if os.path.splitext(src)[-1] == ".xz":
         xzcat = Popen(["xzcat", src], stdout=PIPE)
@@ -392,24 +392,12 @@ def build_freetype():
         autogen()
         configure("--with-old-mac-fonts")
         make_install(archive=name)
-# ----------------------------------------------------------------------------- gc
-def build_gc():
-    name = "gc"
-    message("Building", name)
-    if not binCheck(name):
-        reposcopy("/usr/local/src/repos/bdwgc")
-        git_checkout()
-        shutil.copytree("/usr/local/src/repos/libatomic_ops", "libatomic_ops")
-        autoreconf()
-        configure()
-        make_install(parallel=False) # do not run parallel build
-        binMake(name)
 # ----------------------------------------------------------------------------- gettext
 def build_gettext():
     name = "gettext-0.18.3.1"
     message(name)
     if not binCheck(name):
-        extract(os.path.join("/usr/local/src/tarballs", name + ".tar.gz"), "gettext-0.18.3.1")
+        extract(name + ".tar.gz", "gettext-0.18.3.1")
         configure(
             "--disable-csharp",
             "--disable-java",
@@ -489,7 +477,7 @@ def build_gnutls():
         name = "libidn-1.28"
         message(name)
         if not binCheck(name):
-            extract(os.path.join(PROJECT_ROOT, 'src', name + '.tar.gz'), name)
+            extract(name + '.tar.gz', name)
             configure(
                 '--disable-nls',
                 '--disable-gtk-doc',
@@ -565,11 +553,11 @@ def build_libgphoto2():
         name = "libexif-0.6.21"
         message(name)
         if not binCheck(name):
-            extract("/usr/local/src/tarballs/libexif-0.6.21.tar.bz2", name)
+            extract(name + '.tar.bz2', name)
             configure(
                 "--disable-docs",
                 "--disable-nls",
-                "--with-doc-dir=" + os.path.join(prefix, "share", "doc", "name"),
+                "--with-doc-dir=" + os.path.join(prefix, 'share/doc', name),
             )
             make_install(archive=name)
     build_libexif()
@@ -578,7 +566,7 @@ def build_libgphoto2():
         name = "popt-1.14"
         message(name)
         if not binCheck(name):
-            extract(os.path.join("/usr/local/src/tarballs", name + ".tar.gz"), name)
+            extract(name + '.tar.gz', name)
             configure(
                 "--disable-nls",
             )
@@ -589,7 +577,7 @@ def build_libgphoto2():
         name = "libgd-2.1.0"
         message(name)
         if not binCheck(name):
-            extract(os.path.join("/usr/local/src/tarballs", name + ".tar.xz"), name)
+            extract(name + '.tar.xz', name)
             configure()
             make_install(archive=name)
     build_gd()
@@ -602,21 +590,19 @@ def build_libgphoto2():
         configure(
             "--disable-nls",
             "--with-drivers=all",
-            """CFLAGS='{cflags} -D_DARWIN_C_SOURCE'""".format(cflags = os.getenv("CFLAGS")),
+            "CFLAGS='%s -D_DARWIN_C_SOURCE'" % os.getenv('CFLAGS'),
         )
         make_install(archive=name)
 # ----------------------------------------------------------------------------- gsm
 def build_gsm():
     name = "gsm-1.0.13"
     message(name)
-    configure_format["install_name"] = os.path.join(prefix, "lib", "libgsm.dylib")
-    
-    extract("/usr/local/src/tarballs/gsm-1.0.13.tar.gz", "gsm-1.0-pl13")
+    extract(name + '.tar.gz', 'gsm-1.0-pl13')
     vsh("""
 make {install_name} \
 CC='{gcc} -ansi -pedantic' \
 CCFLAGS='-c -O2 -DNeedFunctionPrototypes=1 -m32 -arch i386' \
-LDFLAGS='__LDFLAGS__' \
+LDFLAGS='{ldflags}' \
 LIBGSM='{install_name}' \
 AR='{gcc}' \
 ARFLAGS='-dynamiclib -fPIC -v -arch i386 -install_name $(LIBGSM) -compatibility_version 1 -current_version 1.0.3 -o' \
@@ -624,7 +610,12 @@ RANLIB=':' \
 RMFLAGS='-f'
 
 install -m 0644 inc/gsm.h {prefix}/include
-""".format(**configure_format).replace('__LDFLAGS__', os.getenv('LDFLAGS')))
+""".format(
+        gcc          = GCC,
+        install_name = os.path.join(prefix, "lib", "libgsm.dylib"),
+        ldflags      = os.getenv('LDFLAGS'),
+        prefix       = prefix,
+    ))
 # ----------------------------------------------------------------------------- libffi
 def build_libffi():
     name = "libffi"
@@ -634,21 +625,13 @@ def build_libffi():
         git_checkout()
         configure()
         make_install(archive=name)
-# ----------------------------------------------------------------------------- libgpg-error
-def build_libgpg_error():
-    name = "libgpg-error"
-    message("Building", name)
-    if not binCheck(name):
-        extract("/usr/local/src/tarballs/libgpg-error-1.12.tar.bz2", "libgpg-error-1.12")
-        configure("--disable-static")
-        make_install(archive=name)
 # ----------------------------------------------------------------------------- libjpeg
 def build_libjpeg_turbo():
     name = "libjpeg-turbo"
     message(name)
     if not binCheck(name):
         reposcopy(name)
-        Popen(["sh", "-v"], stdin=PIPE).communicate("""\
+        vsh("""
 sed -i '' 's|$(datadir)/doc|&/libjpeg-turbo|' Makefile.am
 """)
         autoreconf()
@@ -666,6 +649,7 @@ def build_libpng():
         make_install(archive=name)
 # ----------------------------------------------------------------------------- libusb
 def build_libusb():
+    ### libusb ###
     name = "libusb"
     message(name)
     if not binCheck(name):
@@ -677,18 +661,17 @@ sed -i '' '/^.\\/configure/,$d' autogen.sh
         configure()
         make_install(archive=name)
 
-    def build_libusb_compat():
-        name = "libusb-compat-0.1"
-        message(name)
-        if not binCheck(name):
-            reposcopy(name)
-            vsh("""
+    ### libusb-compat-0.1 ###
+    name = "libusb-compat-0.1"
+    message(name)
+    if not binCheck(name):
+        reposcopy(name)
+        vsh("""
 sed -i '' '/^.\\/configure/,$d' autogen.sh
 """)
-            autogen()
-            configure()
-            make_install(archive=name)
-    build_libusb_compat()
+        autogen()
+        configure()
+        make_install(archive=name)
 # ----------------------------------------------------------------------------- libtiff
 def build_libtiff():
     name = "libtiff"
@@ -737,10 +720,10 @@ def build_readline():
         reposcopy(name)
         git_checkout()
         vsh("""
-patch -Np1 < {f}
+patch -Np1 < {patch}
 """.format(
-    f = os.path.join(PROJECT_ROOT, 'osx-wine-patch/readline.patch')
-))
+        patch = os.path.join(PROJECT_ROOT, 'osx-wine-patch/readline.patch'),
+    ))
         configure("--enable-multibyte", "--with-curses")
         make_install(archive=name)
 # ----------------------------------------------------------------------------- sane-backends
@@ -801,14 +784,16 @@ def build_wine():
 
     ### PATCH ###
     vsh("""
-patch -Np1 < {0}
-patch -Np1 < {1}
-patch -Np1 < {2}
-patch -Np1 < {3}
-""".format(os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_autohidemenu.patch'),
-           os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'),
-           os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'),
-           os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'),
+for f in {patch}
+do
+    patch -Np1 < $f
+done
+""".format(
+        patch = ' '.join([os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_autohidemenu.patch'),
+                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'),
+                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'),
+                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'),
+                        ])
     ))
 
     ### CONFIGURE / MAKE ###
@@ -851,7 +836,7 @@ def build_winetricks():
         name = "cabextract-1.4"
         message(name)
         if not binCheck(name):
-            extract(os.path.join("/usr/local/src/repos/tarballs", name + ".tar.gz"), "cabextract-1.4")
+            extract(name + ".tar.gz", "cabextract-1.4")
             vsh("""./configure --prefix={prefix} --build={triple}""".format(prefix = W_PREFIX,
                                                                             triple = triple))
             make_install(archive=name)
@@ -861,10 +846,14 @@ def build_winetricks():
     message(name)
     reposcopy(name)
     vsh("""
-patch -Np1 < {0}
-patch -Np1 < {1}
-""".format(os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch'),
-           os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch'),
+for f in {patch}
+do
+    patch -Np1 < $f
+done
+""".format(
+        patch = ' '.join([os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch'),
+                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch'),
+                        ])
     ))
 
     exec_src = os.path.join('src', name)
@@ -896,8 +885,10 @@ def build_zlib():
     if not binCheck(name):
         reposcopy(name)
         git_checkout()
-        vsh("./configure --prefix={prefix}".format(**configure_format))
-        binMake(name)
+        vsh("""
+./configure --prefix={prefix}
+""".format(**configure_format))
+        make_install(archive=name)
 # ============================================================================ #
 def finalize():
     os.chdir(W_PREFIX)
