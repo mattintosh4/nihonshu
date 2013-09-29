@@ -489,10 +489,15 @@ def build_gnutls():
         name = "libidn-1.28"
         message(name)
         if not binCheck(name):
-            extract(os.path.join("/usr/local/src/tarballs", name + ".tar.gz"), name)
-            configure()
+            extract(os.path.join(PROJECT_ROOT, 'src', name + '.tar.gz'), name)
+            configure(
+                '--disable-nls',
+                '--disable-gtk-doc',
+                '--disable-gtk-doc-html',
+                '--disable-gtk-doc-pdf',
+            )
             make_install(archive=name)
-#    build_libidn()
+    build_libidn()
 
     def build_p11kit():
         name = "p11-kit"
