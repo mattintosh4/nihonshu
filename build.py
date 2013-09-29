@@ -327,18 +327,37 @@ make install
     else:
         return False
 
+
 def p7z(*args):
-    check_call(('/opt/local/bin/7z',) + args)
+    cmd = ['/opt/local/bin/7z']
+    cmd.extend(args)
+    check_call(cmd)
 
 
+def rm(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):
+            shutil.rmtree(path)
+            print >> sys.stderr, '\033[31m' + 'removed: %s' % path + '\033[m'
+        else:
+            os.remove(path)
+            print >> sys.stderr, '\033[31m' + 'removed: %s' % path + '\033[m'
 
-
+def makedirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print >> sys.stderr, '\033[32m' + 'created: %s' % path + '\033[m'
 
 # ------------------------------------------------------------------------------
 # Build section
 # ------------------------------------------------------------------------------
 def build_windows_tools():
-    dst         = os.path.join(W_DATADIR, 'wine', 'plugin')
+    def installFile(src, dst):
+        makedirs(os.path.dirname(dst))
+        shutil.copy(src, dst)
+        print >> sys.stderr, '\033[32m' + 'installed: %s -> %s' % (src, dst) + '\033[m'
+
+    destroot    = os.path.join(W_DATADIR, 'wine', 'plugin')
     dx9_feb2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_feb2010_redist.exe')
     dx9_jun2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_Jun2010_redist.exe')
     vbrun60sp6  = os.path.join(PROJECT_ROOT, 'rsrc/vbrun60sp6/VB6.0-KB290887-X86.exe')
@@ -347,40 +366,41 @@ def build_windows_tools():
     vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1')
     vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1')
 
+    makedirs(destroot)
+
+    # INSTALL RUNTIME ----------------------------------------------------------
+    p7z('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010)
+    p7z('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
+    p7z('x', '-o' + os.path.join(destroot, 'vbrun60sp6'), vbrun60sp6)
+    p7z('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
+    shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005'))
+    shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
+    shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1'))
+
+    # INSTALL PROJECT LICENSE --------------------------------------------------
+    f   = 'LICENSE'
+    src = os.path.join(PROJECT_ROOT, f)
+    dst = os.path.join(W_DATADIR, 'nihonshu', f)
+    installFile(src, dst)
+
+    # INSTALL MODULE -----------------------------------------------------------
+    f   = 'init_wine.py'
+    src = os.path.join(PROJECT_ROOT, f)
+    dst = os.path.join(W_BINDIR, f)
+    installFile(src, dst)
+
+    # INSTALL INF --------------------------------------------------------------
     for f in [
-        dst,
-        os.path.join(dst, 'inf'),
+        'osx-wine-inf/osx-wine.inf',
+        'inf/dxredist.inf',
+        'inf/vcredist.inf',
+        'inf/win2k.reg',
+        'inf/winxp.reg',
     ]:
-        if not os.path.exists(f):
-            os.makedirs(f)
-
-    check_call(['/opt/local/bin/7z', 'x', '-o' + os.path.join(dst, 'directx9/feb2010'), dx9_feb2010])
-    check_call(['/opt/local/bin/7z', 'x', '-o' + os.path.join(dst, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*'])
-    check_call(['/opt/local/bin/7z', 'x', '-o' + os.path.join(dst, 'vbrun60sp6'), vbrun60sp6])
-    check_call(['/opt/local/bin/7z', 'x', '-o' + os.path.join(dst, 'vcrun60'), vcrun60])
-    shutil.copytree(vcrun2005, os.path.join(dst, 'vcrun2005'))
-    shutil.copytree(vcrun2008, os.path.join(dst, 'vcrun2008sp1'))
-    shutil.copytree(vcrun2010, os.path.join(dst, 'vcrun2010sp1'))
-
-    for f in ['init_wine.py']:
-        shutil.copy(os.path.join(PROJECT_ROOT, f),
-                    os.path.join(W_BINDIR, f))
-
-
-    for f in ['osx-wine.inf']:
-        shutil.copy(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
-                    os.path.join(dst, 'inf', f))
-
-    for f in [
-        'dxredist.inf',
-        'vcredist.inf',
-        'win2k.reg',
-        'winxp.reg',
-    ]:
-        shutil.copy(os.path.join(PROJECT_ROOT, 'inf', f),
-                    os.path.join(dst, 'inf', f))
-
-build_windows_tools()
+        src = os.path.join(PROJECT_ROOT, f)
+        dst = os.path.join(destroot, 'inf')
+        dst = os.path.join(dst, os.path.basename(f))
+        installFile(src, dst)
 
 # ----------------------------------------------------------------------------- freetype
 def build_freetype():
@@ -893,31 +913,38 @@ def build_zlib():
 def finalize():
     os.chdir(W_PREFIX)
 
-    for f in [os.path.join(W_DATADIR, 'doc/nihonshu')]:
-        if not os.path.exists(f): os.makedirs(f)
-        shutil.copy(os.path.join(PROJECT_ROOT, 'LICENSE'),
-                    os.path.join(f,            'LICENSE'))
+    for root, dirs, files in os.walk(W_LIBDIR):
+        if root == os.path.join(W_LIBDIR, 'wine'): continue
 
-    vsh("""
-(
-    set +e
-    find __W_LIBDIR__ -type f \\! -regex '__W_LIBDIR__/wine/.*' -a \\( -name '*.a' -o -name '*.la' \\) |
-    while read f
-    do
-        rm -vf $f
-    done
-)
-rm -f  __W_LIBDIR__/charset.alias
-rm -rf __W_LIBDIR__/gio
-rm -rf __W_LIBDIR__/glib-2.0
-rm -rf __W_LIBDIR__/libffi-3.0.13
-rm -rf __W_LIBDIR__/pkgconfig
-""".replace('__W_LIBDIR__', W_LIBDIR))
+        if root == W_LIBDIR:
+            for d in dirs:
+                d = os.path.join(root, d)
+                if d.endswith((
+                    'gio',
+                    'glib-2.0',
+                    'libffi-3.0.13',
+                    'pkgconfig',
+                )):
+                    if os.path.exists(d):
+                        rm(d)
 
-    shutil.rmtree(os.path.join(W_DATADIR, 'applications'))
-    shutil.rmtree(prefix)
+        for f in files:
+            f = os.path.join(root, f)
+            if f.endswith((
+                '.a',
+                '.la',
+                '.alias',
+            )):
+                if os.path.exists(f):
+                    rm(f)
+
+    rm(os.path.join(W_DATADIR, 'applications'))
+
+    ### REBUILD SHARED SUPPORT DIR ###
+    rm(prefix)
     os.makedirs(prefix)
-    os.symlink(W_LIBDIR, LIBDIR)
+    os.symlink('../lib', LIBDIR)
+
     vsh("""
 tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
 """.format(
@@ -928,6 +955,7 @@ tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
 
 
 # ============================================================================ #
+build_windows_tools()
 build_zlib()
 build_gsm()
 build_xz()
