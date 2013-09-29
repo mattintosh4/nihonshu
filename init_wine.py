@@ -36,34 +36,28 @@ def cabextract(*args):
 
 #-------------------------------------------------------------------------------
 
-def load_inf():
+def load_osx_inf():
     inf = os.path.join(PLUGINDIR, 'inf/osx-wine.inf')
     rundll32(inf)
 
 def load_dx9():
-    def load_dx9_feb2010():
-        src = os.path.join(PLUGINDIR, 'directx9/feb2010/dxsetup.exe')
-        if not os.path.exists(src): return
-        inf = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
-        rundll32(inf)
 
+    def load_dx9_feb2010():
         ### 2k mode ###
         message('Installing DirectX 9 (phase 1)')
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/win2k.reg'))
-        wine(src, '/silent', check=False)
+        wine(src_dx9_feb2010, '/silent', check=False)
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
         wine('wineboot.exe', '-r')
 
         ### XP mode ###
         message('Installing DirectX 9 (phase 2)')
-        wine(src, '/silent', check=False)
+        wine(src_dx9_feb2010, '/silent', check=False)
         wine('wineboot.exe', '-r')
 
     def load_dx9_jun2010():
-        src = os.path.join(PLUGINDIR, 'directx9/jun2010/dxsetup.exe')
-        if not os.path.exists(src): return
         message('Installing DirectX 9 (phase 3)')
-        wine(src, '/silent', check=False)
+        wine(src_dx9_jun2010, '/silent', check=False)
         wine('wineboot.exe', '-r')
 
         registerdlls = [
@@ -145,8 +139,24 @@ def load_dx9():
         ]
         regsvr32(*registerdlls)
 
+    #---------------------------------------------------------------------------
+
+    inf             = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
+    src_dx9_feb2010 = os.path.join(PLUGINDIR, 'directx9/feb2010/dxsetup.exe')
+    src_dx9_jun2010 = os.path.join(PLUGINDIR, 'directx9/jun2010/dxsetup.exe')
+
+    for f in [
+        inf,
+        src_dx9_feb2010,
+        src_dx9_jun2010,
+    ]:
+        if not os.path.exists(f): return
+
+    rundll32(inf)
     load_dx9_feb2010()
     load_dx9_jun2010()
+
+#-------------------------------------------------------------------------------
 
 def load_vbrun():
     src = os.path.join(PLUGINDIR, 'vbrun60sp6/vbrun60sp6.exe')
@@ -154,14 +164,13 @@ def load_vbrun():
     message('Installing Visual Basic 6.0 SP 6')
     wine(src, '/Q', check=False)
 
+#-------------------------------------------------------------------------------
+
 def load_vcrun():
+
     def load_vcrun60():
-        src = os.path.join(PLUGINDIR, 'vcrun60/vcredist.exe')
-        if not os.path.exists(src): return
         message('Installing Visual C++ 6.0')
-        inf = os.path.join(PLUGINDIR, 'inf/vcredist.inf')
-        rundll32(inf)
-        wine(src, '/q', check=False)
+        wine(src_vcrun60, '/q', check=False)
         registerdlls = [
             'atl.dll'       ,
             'comcat.dll'    ,
@@ -172,23 +181,35 @@ def load_vcrun():
         regsvr32(*registerdlls)
 
     def load_vcrun2005():
-        src = os.path.join(PLUGINDIR, 'vcrun2005/vcredist_x86.exe')
-        if not os.path.exists(src): return
         message('Installing Visual C++ 2005')
-        wine(src, '/q')
+        wine(src_vcrun2005, '/q')
 
     def load_vcrun2008():
-        src = os.path.join(PLUGINDIR, 'vcrun2008sp1/vcredist_x86.exe')
-        if not os.path.exists(src): return
         message('Installing Visual C++ 2008 SP 1')
-        wine(src, '/q')
+        wine(src_vcrun2008, '/q')
 
     def load_vcrun2010():
-        src = os.path.join(PLUGINDIR, 'vcrun2010sp1/vcredist_x86.exe')
-        if not os.path.exists(src): return
         message('Installing Visual C++ 2010 SP 1')
-        wine(src, '/q')
+        wine(src_vcrun2010, '/q')
 
+    #---------------------------------------------------------------------------
+
+    inf           = os.path.join(PLUGINDIR, 'inf/vcredist.inf')
+    src_vcrun60   = os.path.join(PLUGINDIR, 'vcrun60/vcredist.exe')
+    src_vcrun2005 = os.path.join(PLUGINDIR, 'vcrun2005/vcredist_x86.exe')
+    src_vcrun2008 = os.path.join(PLUGINDIR, 'vcrun2008sp1/vcredist_x86.exe')
+    src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1/vcredist_x86.exe')
+
+    for f in [
+        inf,
+        src_vcrun60,
+        src_vcrun2005,
+        src_vcrun2008,
+        src_vcrun2010,
+    ]:
+        if not os.path.exists(f): return
+
+    rundll32(inf)
     load_vcrun60()
     load_vcrun2005()
     load_vcrun2008()
@@ -202,7 +223,7 @@ def main():
     if sys.argv[1] == '--skip-init': sys.exit()
 
     ### PHASE 2 ###
-    load_inf()
+    load_osx_inf()
     if sys.argv[1] == '--suppress-init': sys.exit()
 
     ### PHASE 3 ###
