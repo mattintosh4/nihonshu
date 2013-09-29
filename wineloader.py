@@ -19,46 +19,31 @@
 #
 import os
 import sys
-from subprocess import check_call
 
-LANG       = "ja_JP.UTF-8"
-#WINEDEBUG  = "+loaddll"
+PREFIX    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WINE      = os.path.join(PREFIX, "libexec/wine")
+WINEDEBUG = "" #+ "+loaddll"
 
-################################################################################
-
-PREFIX      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WINE        = os.path.join(PREFIX, "libexec", "wine")
-PLUGINDIR   = os.path.join(PREFIX, "share/wine", "plugin")
-
-if sys.argv[1] in ["--help", "--version"]:
+if (len(sys.argv) < 2 or
+    sys.argv[1] in ["--help", "--version"]
+):
     os.execv(WINE, sys.argv)
 
-if "LANG"       in globals(): os.environ.setdefault("LANG",       LANG)
-if "WINEDEBUG"  in globals(): os.environ.setdefault("WINEDEBUG",  WINEDEBUG)
+os.environ.setdefault("LANG", "ja_JP.UTF-8")
+os.environ.setdefault("WINEDEBUG", WINEDEBUG)
 
-if "WINEPREFIX" in os.environ:
-    WINEPREFIX = os.getenv("WINEPREFIX")
-else:
-    WINEPREFIX = os.path.expanduser("~/.wine")
-
-if (
-    not os.path.exists(os.path.join(WINEPREFIX, "drive_c"))
-    or
-    sys.argv[1] == "--force-init"
+wineprefix = os.environ.get("WINEPREFIX", os.path.expanduser("~/.wine"))
+wineprefix = os.path.join(wineprefix, "drive_c")
+wineprefix = os.path.exists(wineprefix)
+if (not wineprefix or
+    sys.argv[1] in ["--skip-init", "--suppress-init", "--force-init"]
 ):
-    check_call([WINE, "wineboot.exe", "--init"])
-    if sys.argv[1] == "--skip-init": sys.exit()
-
     import init_wine
     init_wine.PREFIX    = PREFIX
     init_wine.WINE      = WINE
-    init_wine.PLUGINDIR = PLUGINDIR
-
-    init_wine.load_inf()
-    if sys.argv[1] == "--suppress-init": sys.exit()
+    init_wine.PLUGINDIR = os.path.join(PREFIX, "share/wine/plugin")
     init_wine.main()
-    if sys.argv[1] == "--force-init": sys.exit()
 
-print >> sys.stderr, "\033[4;32m%s\033[m" % " ".join(sys.argv[1:])
+print >> sys.stderr, "\033[4;32m" + " ".join(sys.argv[1:]) + "\033[m"
 
 os.execv(WINE, sys.argv)

@@ -190,7 +190,17 @@ def load_vcrun():
 #-------------------------------------------------------------------------------
 
 def main():
+    ### PHASE 1 ###
+    wine('wineboot.exe', '--init')
+    if sys.argv[1] == '--skip-init': sys.exit()
+
+    ### PHASE 2 ###
     load_inf()
-    load_vcrun()
-    load_vbrun()
-    load_dx9()
+    if sys.argv[1] == '--suppress-init': sys.exit()
+
+    ### PHASE 3 ###
+    if os.path.exists(os.path.join(PLUGINDIR, 'directx9')):
+        load_vcrun()
+        load_vbrun()
+        load_dx9()
+    if sys.argv[1] == '--force-init': sys.exit()
