@@ -101,7 +101,8 @@ check_call(["sh", "-c", "declare"])
 # GNU Autotools #
 #---------------#
 class Autotools:
-    path = "/opt/local/bin:/opt/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
+    global AUTOTOOLS_PATH
+    AUTOTOOLS_PATH = "/opt/local/bin:/opt/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
 
     ### autogen ###
     def autogen(self, *args):
@@ -110,7 +111,7 @@ PATH={path} \
 NOCONFIGURE=1 \
 ./autogen.sh {autogen_args}
 """.format(
-        path         = self.path,
+        path         = AUTOTOOLS_PATH,
         autogen_args = " ".join(args),
     ))
     
@@ -126,7 +127,7 @@ PATH={path} \
 NOCONFIGURE=1 \
 autoreconf -v {autoreconf_args}
 """.format(
-        path            = self.path,
+        path            = AUTOTOOLS_PATH,
         autoreconf_args = " ".join(args),
     ))
 
@@ -391,107 +392,50 @@ unset CFLAGS CXXFLAGS
 # ----------------------------------------------------------------------------- gnutls
 def build_gnutls():
 
-    def build_libtasn1():
-        name = "libtasn1"
+    def build_libtasn1(name = 'libtasn1-3.3'):
         message(name)
-        if not binCheck(name):
-            reposcopy(name)
-            git_checkout()
-            open("ChangeLog", "w").close()
-            autoreconf()
-            configure(
-                "--disable-silent-rules",
-                "--disable-gtk-doc",
-                "--disable-gtk-doc-html",
-                "--disable-gtk-doc.pdf",
-                "--disable-valgrind-tests",
-            )
-            make_install(parallel=False, archive=name)
+        if binCheck(name): return
+        extract(name + '.tar.gz', name)
+        configure(
+            '--disable-gtk-doc',
+            '--disable-gtk-doc-html',
+            '--disable-gtk-doc-pdf',
+            '--disable-silent-rules',
+            '--disable-static',
+        )
+        make_install(archive = name)
+
+    def build_nettle(name = 'nettle-2.7.1'):
+        message(name)
+        if binCheck(name): return
+        extract(name + '.tar.gz', name)
+        configure(
+            '--disable-documentation',
+        )
+        make_install(archive = name)
+
+    # note: gnutls will fail depending on nettle version.
+    def build_gnutls_core(name = 'gnutls'):
+        message(name)
+        if binCheck(name): return
+        reposcopy(name)
+        git_checkout(branch = 'gnutls_3_1_x')
+        vsh("""PATH={path} make autoreconf""".format(path = AUTOTOOLS_PATH))
+        configure(
+            '--disable-doc',
+            '--disable-gtk-doc',
+            '--disable-gtk-doc-html',
+            '--disable-gtk-doc-pdf',
+            '--disable-nls',
+            '--disable-silent-rules',
+            '--disable-static',
+            '--enable-threads=posix',
+        )
+        make_install(archive = name)
+
     build_libtasn1()
-
-    def build_nettle():
-        name = "nettle"
-        message(name)
-        if not binCheck(name):
-            reposcopy(name)
-            autoreconf()
-            configure("--disable-documentation")
-            make_install(archive=name)
     build_nettle()
-
-    def build_libidn():
-        name = "libidn-1.28"
-        message(name)
-        if not binCheck(name):
-            extract(name + '.tar.gz', name)
-            configure(
-                '--disable-nls',
-                '--disable-gtk-doc',
-                '--disable-gtk-doc-html',
-                '--disable-gtk-doc-pdf',
-            )
-            make_install(archive=name)
-    build_libidn()
-
-    def build_p11kit():
-        name = "p11-kit"
-        message(name)
-        if not binCheck(name):
-            reposcopy(name)
-            autogen()
-            configure(
-                "--disable-coverage",
-                "--disable-debug",
-                "--disable-doc",
-                "--disable-doc-html",
-                "--disable-doc-pdf",
-                "--disable-nls",
-                "--disable-silent-rules",
-                "--without-trust-paths",
-            )
-            make_install(archive=name)
-    build_p11kit()
-
-    name = "gnutls"
-    message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout(branch="gnutls_3_1_x")
-        open('ChangeLog', 'w').close()
-        autoreconf(force=True)
-        configure(
-            "--disable-static",
-            "--disable-doc",
-            "--disable-gtk-doc",
-            "--disable-gtk-doc-html",
-            "--disable-gtk-doc-pdf",
-            "--disable-guile",
-            "--disable-nls",
-            "--disable-silent-rules",
-            "--disable-tests",
-            "--enable-threads=posix",
-#            "--without-p11-kit",
-        )
-        make_install(archive=name)
-# ----------------------------------------------------------------------------- guile
-# dependenceis: readline, gettext, libtool, gmp
-# note: llvm/clang installation failed
-#
-def build_guile():
-    name = "guile"
-    message("Building guile")
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout(branch="branch_release-1-8")
-#        git_checkout(branch="stable-2.0")
-        autoreconf()
-#        extract("/usr/local/src/tarballs/guile-2.0.9.tar.gz", "guile-2.0.9")
-        configure(
-            "--enable-regex",
-            "--disable-error-on-warning",
-            "--disable-static",
-        )
-        make_install(archive=name)
+    build_gnutls_core()
 # ----------------------------------------------------------------------------- gphoto2
 def build_libgphoto2():
 
@@ -896,7 +840,6 @@ build_gmp()
 build_libffi()
 build_glib()
 build_libusb()
-#build_guile()
 build_gnutls()
 build_libpng()
 build_freetype()
