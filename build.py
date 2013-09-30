@@ -267,16 +267,36 @@ def makedirs(path):
         os.makedirs(path)
         print >> sys.stderr, '\033[32m' + 'created: %s' % path + '\033[m'
 
+def installFile(src, dst):
+    makedirs(os.path.dirname(dst))
+    shutil.copy(src, dst)
+    print >> sys.stderr, '\033[32m' + 'installed: %s -> %s' % (src, dst) + '\033[m'
+
 # ------------------------------------------------------------------------------
 # Build section
 # ------------------------------------------------------------------------------
-def build_windows_tools():
-    def installFile(src, dst):
-        makedirs(os.path.dirname(dst))
-        shutil.copy(src, dst)
-        print >> sys.stderr, '\033[32m' + 'installed: %s -> %s' % (src, dst) + '\033[m'
 
-    destroot    = os.path.join(W_DATADIR, 'wine', 'plugin')
+def install_core_resources():
+    # INSTALL PROJECT LICENSE --------------------------------------------------
+    f   = 'LICENSE'
+    src = os.path.join(PROJECT_ROOT, f)
+    dst = os.path.join(W_DATADIR, 'nihonshu', f)
+    installFile(src, dst)
+
+    # INSTALL MODULE -----------------------------------------------------------
+    f   = 'init_wine.py'
+    src = os.path.join(PROJECT_ROOT, f)
+    dst = os.path.join(W_BINDIR, f)
+    installFile(src, dst)
+
+    # INSTALL INF --------------------------------------------------------------
+    f   = 'osx-wine.inf'
+    src = os.path.join(PROJECT_ROOT, 'osx-wine-inf', f)
+    dst = os.path.join(W_DATADIR, 'wine/plugin/inf', f)
+    installFile(src, dst)
+
+def install_support_files():
+    destroot    = os.path.join(W_DATADIR, 'wine/plugin')
     dx9_feb2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_feb2010_redist.exe')
     dx9_jun2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_Jun2010_redist.exe')
     vbrun60sp6  = os.path.join(PROJECT_ROOT, 'rsrc/vbrun60sp6/VB6.0-KB290887-X86.exe')
@@ -296,21 +316,8 @@ def build_windows_tools():
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1'))
 
-    # INSTALL PROJECT LICENSE --------------------------------------------------
-    f   = 'LICENSE'
-    src = os.path.join(PROJECT_ROOT, f)
-    dst = os.path.join(W_DATADIR, 'nihonshu', f)
-    installFile(src, dst)
-
-    # INSTALL MODULE -----------------------------------------------------------
-    f   = 'init_wine.py'
-    src = os.path.join(PROJECT_ROOT, f)
-    dst = os.path.join(W_BINDIR, f)
-    installFile(src, dst)
-
     # INSTALL INF --------------------------------------------------------------
     for f in [
-        'osx-wine-inf/osx-wine.inf',
         'inf/dxredist.inf',
         'inf/vcredist.inf',
         'inf/win2k.reg',
@@ -864,7 +871,8 @@ def finalize():
     os.makedirs(prefix)
     os.symlink('../lib', LIBDIR)
 
-    vsh("""
+    def create_distfile(distname):
+        vsh("""
 tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
 """.format(
         workdir  = os.path.dirname(W_PREFIX),
@@ -872,9 +880,12 @@ tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
         distname = distname,
     ))
 
+    install_core_resources()
+    create_distfile('wine_nihonshu')
+    install_support_files()
+    create_distfile('wine_nihonshu_dx9')
 
 # ============================================================================ #
-build_windows_tools()
 build_zlib()
 build_gsm()
 build_xz()
@@ -903,4 +914,4 @@ build_winetricks()
 
 finalize()
 
-print >> sys.stdout, 'done.'
+print >> sys.stderr, 'done.'
