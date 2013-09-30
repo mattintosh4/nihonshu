@@ -66,6 +66,8 @@ for f in [
 
 os.symlink(W_LIBDIR, LIBDIR)
 
+#-------------------------------------------------------------------------------
+
 import build_preset as my
 my.PREFIX = prefix
 my.main()
@@ -75,7 +77,12 @@ GCC     = my.GCC
 GXX     = my.GXX
 CLANG   = my.CLANG
 CLANGXX = my.CLANGXX
-GIT     = os.getenv('GIT')
+
+git_checkout = my.git_checkout
+hg_update    = my.hg_update
+p7zip        = my.p7zip
+
+#-------------------------------------------------------------------------------
 
 ncpu        = str(int(get_stdout("sysctl", "-n", "hw.ncpu")) + 1)
 triple      = "i686-apple-darwin" + os.uname()[2]
@@ -194,11 +201,6 @@ make install
 def make_uninstall():
     check_call(["make", "uninstall"])
 
-
-def git_checkout(branch="master"):
-    check_call([GIT, "checkout", "-f", branch])
-
-
 def patch(*args):
     for f in args:
         check_call(["patch", "-Np1"], stdin=open(f, "r"))
@@ -246,13 +248,6 @@ make install
         return True
     else:
         return False
-
-
-def p7z(*args):
-    cmd = ['/opt/local/bin/7z']
-    cmd.extend(args)
-    check_call(cmd)
-
 
 def rm(path):
     if os.path.exists(path):
@@ -309,10 +304,10 @@ def install_support_files():
     makedirs(destroot)
 
     # INSTALL RUNTIME ----------------------------------------------------------
-    p7z('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010)
-    p7z('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
-    p7z('x', '-o' + os.path.join(destroot, 'vbrun60sp6'), vbrun60sp6)
-    p7z('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
+    p7zip('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010)
+    p7zip('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
+    p7zip('x', '-o' + os.path.join(destroot, 'vbrun60sp6'), vbrun60sp6)
+    p7zip('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1'))

@@ -50,6 +50,25 @@ xcodebuild -version -sdk macosx%s | sed -n '/^Path: /s///p'
 
 #-------------------------------------------------------------------------------
 
+GIT   = mp_cmd('git')
+HG    = mp_cmd('hg')
+P7ZIP = mp_cmd('7z')
+
+def git_checkout(branch = 'master'):
+  cmd = [GIT, 'checkout', '-f', branch]
+  subprocess.check_call(cmd)
+
+def hg_update(branch = 'default'):
+  cmd = [HG, 'update', '-C', branch]
+  subprocess.check_call(cmd)
+
+def p7zip(*args):
+  cmd = [P7ZIP]
+  cmd.extend(args)
+  subprocess.check_call(cmd)
+
+#-------------------------------------------------------------------------------
+
 def set_compiler():
   global GCC
   global GXX
@@ -113,7 +132,7 @@ def set_env():
   os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
 
   os.environ['FONTFORGE']       = mp_cmd('fontforge')
-  os.environ['GIT']             = mp_cmd('git')
+  os.environ['GIT']             = GIT
   os.environ['HELP2MAN']        = mp_cmd('help2man')
   os.environ['NASM']            = mp_cmd('nasm')
   os.environ['YASM']            = mp_cmd('yasm')
@@ -127,6 +146,7 @@ def set_env():
   env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'share', 'pkgconfig'), separator=':')
   env_append('PKG_CONFIG_LIBDIR', '/usr/lib/pkgconfig',                       separator=':')
 
+#-------------------------------------------------------------------------------
 
 def main():
   set_sdk()
