@@ -116,6 +116,7 @@ def set_env():
   os.environ['HELP2MAN']      = mp_cmd('help2man')
   os.environ['NASM']          = mp_cmd('nasm')
   os.environ['YASM']          = mp_cmd('yasm')
+  os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
 
   os.environ['ACLOCAL_PATH'] = ''
   env_append('ACLOCAL_PATH', os.path.join(PREFIX,          'share', 'aclocal'), separator=':')
@@ -125,8 +126,6 @@ def set_env():
   env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'lib',   'pkgconfig'), separator=':')
   env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'share', 'pkgconfig'), separator=':')
   env_append('PKG_CONFIG_LIBDIR', '/usr/lib/pkgconfig',                       separator=':')
-  
-  os.environ['gt_cv_local_ja']    = 'ja_JP.UTF-8'
 
 
 def main():
