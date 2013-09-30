@@ -94,29 +94,29 @@ def set_env():
   env_append('PATH', os.path.join(PREFIX, 'bin'), separator=':')
   env_append('PATH', '/usr/bin:/bin:/usr/sbin:/sbin', separator=':')
 
-  os.environ['SHELL']         = '/bin/bash'
-  os.environ['TERM']          = 'xterm'
-  os.environ['COMMAND_MODE']  = 'unix2003'
-  os.environ['LANG']          = 'ja_JP.UTF-8'
-
-  os.environ['ACLOCAL']       = mp_cmd('aclocal')
-  os.environ['AUTOCONF']      = mp_cmd('autoconf')
-  os.environ['AUTOHEADER']    = mp_cmd('autoheader')
-  os.environ['AUTOM4TE']      = mp_cmd('autom4te')
-  os.environ['AUTOMAKE']      = mp_cmd('automake')
-  os.environ['AUTOPOINT']     = mp_cmd('autopoint')
-  os.environ['INSTALL']       = mp_cmd('ginstall')
-  os.environ['LIBTOOLIZE']    = mp_cmd('glibtoolize')
-  os.environ['M4']            = mp_cmd('gm4')
-  os.environ['MAKE']          = mp_cmd('gmake')
-  os.environ['PKG_CONFIG']    = mp_cmd('pkg-config')
-
-  os.environ['FONTFORGE']     = mp_cmd('fontforge')
-  os.environ['GIT']           = mp_cmd('git')
-  os.environ['HELP2MAN']      = mp_cmd('help2man')
-  os.environ['NASM']          = mp_cmd('nasm')
-  os.environ['YASM']          = mp_cmd('yasm')
+  os.environ['SHELL']           = '/bin/bash'
+  os.environ['TERM']            = 'xterm'
+  os.environ['COMMAND_MODE']    = 'unix2003'
+  os.environ['LANG']            = 'ja_JP.UTF-8'
   os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
+
+  os.environ['ACLOCAL']         = mp_cmd('aclocal')
+  os.environ['AUTOCONF']        = mp_cmd('autoconf')
+  os.environ['AUTOHEADER']      = mp_cmd('autoheader')
+  os.environ['AUTOM4TE']        = mp_cmd('autom4te')
+  os.environ['AUTOMAKE']        = mp_cmd('automake')
+  os.environ['AUTOPOINT']       = mp_cmd('autopoint')
+  os.environ['INSTALL']         = mp_cmd('ginstall')
+  os.environ['LIBTOOLIZE']      = mp_cmd('glibtoolize')
+  os.environ['M4']              = mp_cmd('gm4')
+  os.environ['MAKE']            = mp_cmd('gmake')
+  os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
+
+  os.environ['FONTFORGE']       = mp_cmd('fontforge')
+  os.environ['GIT']             = mp_cmd('git')
+  os.environ['HELP2MAN']        = mp_cmd('help2man')
+  os.environ['NASM']            = mp_cmd('nasm')
+  os.environ['YASM']            = mp_cmd('yasm')
 
   os.environ['ACLOCAL_PATH'] = ''
   env_append('ACLOCAL_PATH', os.path.join(PREFIX,          'share', 'aclocal'), separator=':')
