@@ -616,41 +616,47 @@ patch -Np1 < {patch}
 #
 def build_sane():
 
-    def build_net_snmp():
-        name = "net-snmp"
+    def build_net_snmp(name = 'net-snmp'):
         message(name)
-        if not binCheck(name):
-            reposcopy(name)
-            git_checkout()
-            configure("--with-defaults")
-            make_install(archive=name)
-    build_net_snmp()
-    
-    name = "sane-backends"
-    message(name)
-    if not binCheck(name):
+        if binCheck(name): return
         reposcopy(name)
         git_checkout()
         configure(
-            "--disable-latex",
-            "--disable-maintainer-mode",
-            "--disable-silent-rules",
-            "--disable-translations",
-            "--enable-libusb_1_0",
-            "--enable-local-backends",
-            "--with-docdir=" + os.path.join(prefix, "share", "doc", name),
-            "--without-gphoto2",
-            "--without-v4l",
+            '--with-defaults',
         )
         make_install(archive=name)
-# ----------------------------------------------------------------------------- SDL
-def build_SDL():
-    name = "SDL"
-    message(name)
-    if not binCheck(name):
+
+    def build_sane_core(name = 'sane-backends'):
+        message(name)
+        if binCheck(name): return
         reposcopy(name)
-        configure("--enable-sse2")
+        git_checkout()
+        configure(
+            '--disable-latex',
+            '--disable-maintainer-mode',
+            '--disable-silent-rules',
+            '--disable-translations',
+            '--enable-libusb_1_0',
+            '--enable-local-backends',
+            '--with-docdir=' + os.path.join(prefix, 'share', 'doc', name),
+            '--without-gphoto2',
+            '--without-v4l',
+        )
         make_install(archive=name)
+
+    build_net_snmp()
+    build_sane_core()
+# ----------------------------------------------------------------------------- SDL
+def build_SDL(name = 'SDL'):
+    message(name)
+    if binCheck(name): return
+    reposcopy(name)
+    hg_update('SDL-1.2')
+    autogen()
+    configure(
+        '--enable-sse2',
+    )
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- unixODBC
 def build_unixodbc():
     name = "unixODBC"
