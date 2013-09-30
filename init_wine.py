@@ -159,6 +159,7 @@ def load_dx9():
 #-------------------------------------------------------------------------------
 
 def load_vbrun():
+
     src = os.path.join(PLUGINDIR, 'vbrun60sp6/vbrun60sp6.exe')
     if not os.path.exists(src): return
     message('Installing Visual Basic 6.0 SP 6')
@@ -214,10 +215,12 @@ def load_vcrun():
     load_vcrun2005()
     load_vcrun2008()
     load_vcrun2010()
+    load_vbrun()
 
 #-------------------------------------------------------------------------------
 
 def main():
+
     ### PHASE 1 ###
     wine('wineboot.exe', '--init')
     if sys.argv[1] == '--skip-init': sys.exit()
@@ -228,6 +231,5 @@ def main():
 
     ### PHASE 3 ###
     load_vcrun()
-    load_vbrun()
     load_dx9()
     if sys.argv[1] == '--force-init': sys.exit()
