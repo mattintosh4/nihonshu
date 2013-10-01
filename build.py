@@ -511,52 +511,47 @@ def build_libffi():
         configure()
         make_install(archive=name)
 # ----------------------------------------------------------------------------- libjpeg
-def build_libjpeg_turbo():
-    name = "libjpeg-turbo"
+def build_libjpeg_turbo(name = 'libjpeg-turbo'):
     message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        vsh("""
-sed -i '' 's|$(datadir)/doc|&/libjpeg-turbo|' Makefile.am
-""")
-        autoreconf()
-        configure("--with-jpeg8")
-        make_install(archive=name)
+    if binCheck(name): return
+    reposcopy(name)
+    vsh("""sed -i '' 's|$(datadir)/doc|&/libjpeg-turbo|' Makefile.am""")
+    autoreconf()
+    configure("--with-jpeg8")
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- libpng
-def build_libpng():
-    name = "libpng"
+def build_libpng(name = 'libpng'):
     message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout("libpng16")
-        autogen()
-        configure()
-        make_install(archive=name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout('libpng16')
+    autogen()
+    configure()
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- libusb
 def build_libusb():
-    ### libusb ###
-    name = "libusb"
-    message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        vsh("""
-sed -i '' '/^.\\/configure/,$d' autogen.sh
-""")
-        autogen()
-        configure()
-        make_install(archive=name)
 
-    ### libusb-compat-0.1 ###
-    name = "libusb-compat-0.1"
-    message(name)
-    if not binCheck(name):
+    def build_libusb_core(name = 'libusb'):
+        message(name)
+        if binCheck(name): return
         reposcopy(name)
-        vsh("""
-sed -i '' '/^.\\/configure/,$d' autogen.sh
-""")
+        vsh("""sed -i '' '/^.\\/configure/,$d' autogen.sh""")
         autogen()
         configure()
-        make_install(archive=name)
+        make_install(archive = name)
+
+
+    def build_libusb_compat(name = 'libusb-compat-0.1'):
+        message(name)
+        if binCheck(name): return
+        reposcopy(name)
+        vsh("""sed -i '' '/^.\\/configure/,$d' autogen.sh""")
+        autogen()
+        configure()
+        make_install(archive = name)
+
+    build_libusb_core()
+    build_libusb_compat()
 # ----------------------------------------------------------------------------- libtiff
 def build_libtiff():
     name = "libtiff"
@@ -595,22 +590,21 @@ def build_orc():
     if not binCheck(name):
         reposcopy(name)
         autoreconf(force=True)
-        configure("--disable-static")
+        configure()
         make_install(archive=name)
 # ----------------------------------------------------------------------------- readline
-def build_readline():
-    name = "readline"
-    message("Building", name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout()
-        vsh("""
-patch -Np1 < {patch}
-""".format(
-        patch = os.path.join(PROJECT_ROOT, 'osx-wine-patch/readline.patch'),
-    ))
-        configure("--enable-multibyte", "--with-curses")
-        make_install(archive=name)
+def build_readline(name = 'readline'):
+    message(name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout()
+    patch = os.path.join(PROJECT_ROOT, 'osx-wine-patch/readline.patch')
+    vsh("""patch -Np1 < %s""" % patch)
+    configure(
+        '--enable-multibyte',
+        '--with-curses',
+    )
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- sane-backends
 # dependencies: jpeg, libusb-compat, net-snmp, tiff, zlib
 #
@@ -639,7 +633,6 @@ def build_sane():
             '--enable-libusb_1_0',
             '--enable-local-backends',
             '--with-docdir=' + os.path.join(prefix, 'share', 'doc', name),
-            '--without-gphoto2',
             '--without-v4l',
         )
         make_install(archive=name)
@@ -839,6 +832,7 @@ build_xz()
 #build_orc()
 build_gettext()
 build_readline()
+build_unixodbc()
 build_gmp()
 build_libffi()
 build_glib()
