@@ -726,31 +726,34 @@ def build_winetricks():
             vsh("""./configure --prefix={prefix} --build={triple}""".format(prefix = W_PREFIX,
                                                                             triple = triple))
             make_install(archive=name)
-    build_cabextract()
 
-    name     = 'winetricks'
-    message(name)
-    reposcopy(name)
-    vsh("""
-for f in {patch}
-do
-    patch -Np1 < $f
-done
+    def build_winetricks_core(name = 'winetricks'):
+        patch_1 = os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch')
+        patch_2 = os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch')
+
+        message(name)
+        reposcopy(name)
+        vsh("""
+patch -Np1 < {patch_1}
+patch -Np1 < {patch_2}
+make install PREFIX={prefix}
 """.format(
-        patch = ' '.join([os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch'),
-                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch'),
-                        ])
+        patch_1 = patch_1,
+        patch_2 = patch_2,
+        prefix  = W_PREFIX,
     ))
 
-    exec_src = os.path.join('src', name)
-    exec_dst = os.path.join(W_LIBEXECDIR, name)
-    scpt_src = os.path.join(PROJECT_ROOT, 'winetricksloader.py')
-    scpt_dst = os.path.join(W_BINDIR, name)
+        src = os.path.join(W_BINDIR,     name)
+        dst = os.path.join(W_LIBEXECDIR, name)
+        os.rename(src, dst)
 
-    shutil.copy2(exec_src, exec_dst)
-    shutil.copy2(scpt_src, scpt_dst)
-    os.chmod(exec_dst, 0755)
-    os.chmod(scpt_dst, 0755)
+        src = os.path.join(PROJECT_ROOT, 'winetricksloader.py')
+        dst = os.path.join(W_BINDIR, name)
+        shutil.copy(src, dst)
+        os.chmod(dst, 0755)
+
+    build_cabextract()
+    build_winetricks_core()
 # ----------------------------------------------------------------------------- xz
 def build_xz():
     name = "xz"
