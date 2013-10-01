@@ -540,7 +540,6 @@ def build_libusb():
         configure()
         make_install(archive = name)
 
-
     def build_libusb_compat(name = 'libusb-compat-0.1'):
         message(name)
         if binCheck(name): return
@@ -662,25 +661,16 @@ def build_unixodbc(name = 'unixODBC'):
     makedirs(os.path.join(prefix, 'etc'))
     make_install(archive=name)
 # ----------------------------------------------------------------------------- wine
-def build_wine():
-    name = "wine"
+def build_wine(name = 'wine'):
     message(name)
     reposcopy(name)
     git_checkout()
+#    git_checkout(branch = 'wine-1.7.3')
 
-    ### PATCH ###
-    vsh("""
-for f in {patch}
-do
-    patch -Np1 < $f
-done
-""".format(
-        patch = ' '.join([os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_autohidemenu.patch'),
-                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'),
-                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'),
-                          os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'),
-                        ])
-    ))
+    vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_autohidemenu.patch'))
+    vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'))
+    vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'))
+    vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'))
 
     ### CONFIGURE / MAKE ###
     vsh("""
@@ -705,79 +695,74 @@ make install
     ))
 
     ### ADD RPATH ###
-    check_call(['install_name_tool', '-add_rpath', '/opt/X11/lib', os.path.join(W_BINDIR, 'wine')])
+    src = os.path.join(W_BINDIR, 'wine')
+    vsh("""install_name_tool -add_rpath /opt/X11/lib %s""" % src)
 
     ### RENAME EXECUTABLE ###
-    os.rename(os.path.join(W_BINDIR,     'wine'),
-              os.path.join(W_LIBEXECDIR, 'wine'))
+    src = os.path.join(W_BINDIR,     'wine')
+    dst = os.path.join(W_LIBEXECDIR, 'wine')
+    os.rename(src, dst)
 
-    ### INSTALL WINELOADER ###
-    shutil.copy2(os.path.join(PROJECT_ROOT, 'wineloader.py'),
-                 os.path.join(W_BINDIR, 'wine'))
-    os.chmod(os.path.join(W_BINDIR, 'wine'), 0755)
+    ### INSTALL WINE LOADER ###
+    src = os.path.join(PROJECT_ROOT, 'wineloader.py')
+    dst = os.path.join(W_BINDIR,     'wine')
+    shutil.copy(src, dst)
+    os.chmod(dst, 0755)
 # ----------------------------------------------------------------------------- winetricks / cabextract
 def build_winetricks():
 
-    def build_cabextract():
-        name = "cabextract-1.4"
+    def build_cabextract(name = 'cabextract-1.4'):
         message(name)
-        if not binCheck(name):
-            extract(name + ".tar.gz", "cabextract-1.4")
-            vsh("""./configure --prefix={prefix} --build={triple}""".format(prefix = W_PREFIX,
-                                                                            triple = triple))
-            make_install(archive=name)
+        if binCheck(name): return
+        extract(name + '.tar.gz', 'cabextract-1.4')
+        vsh("""
+./configure --prefix={prefix} --build={triple}
+""".format(
+            prefix = W_PREFIX,
+            triple = triple,
+        ))
+        make_install(archive = name)
 
     def build_winetricks_core(name = 'winetricks'):
-        patch_1 = os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch')
-        patch_2 = os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch')
-
         message(name)
         reposcopy(name)
-        vsh("""
-patch -Np1 < {patch_1}
-patch -Np1 < {patch_2}
-make install PREFIX={prefix}
-""".format(
-        patch_1 = patch_1,
-        patch_2 = patch_2,
-        prefix  = W_PREFIX,
-    ))
+        vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch'))
+        vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch'))
+        vsh("""make install PREFIX=%s""" % W_PREFIX)
 
-        src = os.path.join(W_BINDIR,     name)
-        dst = os.path.join(W_LIBEXECDIR, name)
+        ### RENAME EXECUTABLE ###
+        src = os.path.join(W_BINDIR,     'winetricks')
+        dst = os.path.join(W_LIBEXECDIR, 'winetricks')
         os.rename(src, dst)
 
+        ### INSTALL WINETRICKS LOADER ###
         src = os.path.join(PROJECT_ROOT, 'winetricksloader.py')
-        dst = os.path.join(W_BINDIR, name)
+        dst = os.path.join(W_BINDIR,     'winetricks')
         shutil.copy(src, dst)
         os.chmod(dst, 0755)
 
     build_cabextract()
     build_winetricks_core()
 # ----------------------------------------------------------------------------- xz
-def build_xz():
-    name = "xz"
+def build_xz(name = 'xz'):
     message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout()
-        autogen()
-        configure(
-            "--disable-nls",
-            "--disable-silent-rules",
-        )
-        make_install(archive=name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout()
+    autogen()
+    configure(
+        '--disable-nls',
+        '--disable-silent-rules',
+    )
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- zlib
-def build_zlib():
-    name = "zlib"
+def build_zlib(name = 'zlib'):
     message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout()
-        vsh("""
-./configure --prefix={prefix}
-""".format(**configure_format))
-        make_install(archive=name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout()
+    vsh("""./configure --prefix={prefix}""".format(**configure_format))
+    make_install(archive = name)
 # ============================================================================ #
 def finalize():
     os.chdir(W_PREFIX)
