@@ -828,9 +828,9 @@ def finalize():
         p7zip('a', '-sfx', dst, src)
 
     install_core_resources()
-    create_distfile('wine_nihonshu')
+    create_distfile('wine_nihonshu_no-plugin')
     install_support_files()
-    create_distfile('wine_nihonshu_dx9')
+    create_distfile('wine_nihonshu')
 
 # ============================================================================ #
 build_zlib()
