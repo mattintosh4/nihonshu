@@ -290,7 +290,7 @@ def install_support_files():
     dx9_jun2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_Jun2010_redist.exe')
     vbrun60sp6  = os.path.join(PROJECT_ROOT, 'rsrc/vbrun60sp6/VB6.0-KB290887-X86.exe')
     vcrun60     = os.path.join(PROJECT_ROOT, 'rsrc/vcrun60/VC6RedistSetup_jpn.exe')
-    vcrun2005   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2005sp1')
+    vcrun2005   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2005sp1_jun2011')
     vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1')
     vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1_aug2011')
 
@@ -301,7 +301,7 @@ def install_support_files():
     p7zip('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
     p7zip('x', '-o' + os.path.join(destroot, 'vbrun60sp6'), vbrun60sp6)
     p7zip('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
-    shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1'))
+    shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1_jun2011'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
 
