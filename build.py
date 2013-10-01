@@ -143,18 +143,11 @@ autogen    = autotools.autogen
 autoreconf = autotools.autoreconf
 
 
-def copytree(name):
-    src = os.path.join(SRCROOT,   name)
-    dst = os.path.join(BUILDROOT, name)
-
-    shutil.copytree(src, dst)
-    os.chdir(dst)
-
 def reposcopy(name):
     src = os.path.join(PROJECT_ROOT, 'src', name)
     dst = os.path.join(BUILDROOT, name)
 
-    shutil.copytree(src, dst)
+    shutil.copytree(src, dst, True)
     os.chdir(dst)
 
 configure_pre_args = (
