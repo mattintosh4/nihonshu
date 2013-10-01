@@ -7,9 +7,8 @@ DelFiles = DelFilesSection
 
 [DllOverrides]
 
-;;;;;;;;;;;;;;;;;;
-; Visual C++ 6.0 ;
-;;;;;;;;;;;;;;;;;;
+;;; Visual C++ 6.0 ;;;
+
 HKCU,%DllOverrides%,"atl"         ,,"native,builtin"
 HKCU,%DllOverrides%,"comcat"      ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcirt"     ,,"native,builtin"
@@ -19,26 +18,23 @@ HKCU,%DllOverrides%,"oleaut32"    ,,"builtin,native"
 HKCU,%DllOverrides%,"olepro32"    ,,"builtin,native"
 HKCU,%DllOverrides%,"stdole2.tlb" ,,"native,builtin"
 
-;;;;;;;;;;;;;;;;;;;
-; Visual C++ 2005 ;
-;;;;;;;;;;;;;;;;;;;
+;;; Visual C++ 2005 ;;;
+
 HKCU,%DllOverrides%,"atl80"       ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcm80"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcp80"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcr80"     ,,"native,builtin"
 HKCU,%DllOverrides%,"vcomp"       ,,"native,builtin"
 
-;;;;;;;;;;;;;;;;;;;
-; Visual C++ 2008 ;
-;;;;;;;;;;;;;;;;;;;
+;;; Visual C++ 2008 ;;;
+
 HKCU,%DllOverrides%,"msvcm90"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcp90"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcr90"     ,,"native,builtin"
 HKCU,%DllOverrides%,"vcomp90"     ,,"native,builtin"
 
-;;;;;;;;;;;;;;;;;;;
-; Visual C++ 2010 ;
-;;;;;;;;;;;;;;;;;;;
+;;; Visual C++ 2010 ;;;
+
 HKCU,%DllOverrides%,"atl100"      ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcp100"    ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcr100"    ,,"native,builtin"
