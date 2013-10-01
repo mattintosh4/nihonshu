@@ -164,6 +164,7 @@ def load_vbrun():
     if not os.path.exists(src): return
     message('Installing Visual Basic 6.0 SP 6')
     wine(src, '/Q', check=False)
+    wine('wineboot.exe', '-r')
 
 #-------------------------------------------------------------------------------
 
@@ -172,26 +173,22 @@ def load_vcrun():
     def load_vcrun60():
         message('Installing Visual C++ 6.0')
         wine(src_vcrun60, '/q', check=False)
-        registerdlls = [
-            'atl.dll'       ,
-#            'comcat.dll'    ,
-            'mfc42.dll'     ,
-#            'oleaut32.dll'  , # incompatibility
-#            'olepro32.dll'  , # incompatibility
-        ]
-        regsvr32(*registerdlls)
+        wine('wineboot.exe', '-r')
 
     def load_vcrun2005():
         message('Installing Visual C++ 2005')
         wine(src_vcrun2005, '/q')
+        wine('wineboot.exe', '-r')
 
     def load_vcrun2008():
         message('Installing Visual C++ 2008 SP 1')
         wine(src_vcrun2008, '/q')
+        wine('wineboot.exe', '-r')
 
     def load_vcrun2010():
         message('Installing Visual C++ 2010 SP 1')
         wine(src_vcrun2010, '/q')
+        wine('wineboot.exe', '-r')
 
     #---------------------------------------------------------------------------
 
