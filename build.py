@@ -658,14 +658,16 @@ def build_SDL(name = 'SDL'):
     )
     make_install(archive = name)
 # ----------------------------------------------------------------------------- unixODBC
-def build_unixodbc():
-    name = "unixODBC"
-    message = (name)
-    if not binCheck(name):
-        reposcopy(name)
-        autoreconf(force=True)
-        configure()
-        make_install(archive=name)
+def build_unixodbc(name = 'unixODBC'):
+    message(name)
+    if binCheck(name): return
+    reposcopy(name)
+    autoreconf(force = True)
+    configure(
+        '--enable-static',
+    )
+    makedirs(os.path.join(prefix, 'etc'))
+    make_install(archive=name)
 # ----------------------------------------------------------------------------- wine
 def build_wine():
     name = "wine"
