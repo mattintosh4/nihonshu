@@ -196,7 +196,7 @@ def load_vcrun():
     src_vcrun60   = os.path.join(PLUGINDIR, 'vcrun60/vcredist.exe')
     src_vcrun2005 = os.path.join(PLUGINDIR, 'vcrun2005sp1/vcredist_x86.exe')
     src_vcrun2008 = os.path.join(PLUGINDIR, 'vcrun2008sp1/vcredist_x86.exe')
-    src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1/vcredist_x86.exe')
+    src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1_aug2011/vcredist_x86.exe')
 
     for f in [
         inf,

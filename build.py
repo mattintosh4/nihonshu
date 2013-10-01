@@ -292,7 +292,7 @@ def install_support_files():
     vcrun60     = os.path.join(PROJECT_ROOT, 'rsrc/vcrun60/VC6RedistSetup_jpn.exe')
     vcrun2005   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2005sp1')
     vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1')
-    vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1')
+    vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1_aug2011')
 
     makedirs(destroot)
 
@@ -303,7 +303,7 @@ def install_support_files():
     p7zip('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
-    shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1'))
+    shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
 
     # INSTALL INF --------------------------------------------------------------
     for f in [
