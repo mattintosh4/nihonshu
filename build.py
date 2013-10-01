@@ -808,17 +808,21 @@ def finalize():
 
     ### REBUILD SHARED SUPPORT DIR ###
     rm(prefix)
-    os.makedirs(prefix)
+    makedirs(prefix)
     os.symlink('../lib', LIBDIR)
 
     def create_distfile(distname):
-        vsh("""
-tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
-""".format(
-        workdir  = os.path.dirname(W_PREFIX),
-        name     = os.path.basename(W_PREFIX),
-        distname = distname,
-    ))
+#        vsh("""
+#tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
+#""".format(
+#        workdir  = os.path.dirname(W_PREFIX),
+#        name     = os.path.basename(W_PREFIX),
+#        distname = distname,
+#    ))
+        src = W_PREFIX
+        dst = os.path.dirname(W_PREFIX)
+        dst = os.path.join(dst, distname + '.exe')
+        p7zip('a', '-sfx', dst, src)
 
     install_core_resources()
     create_distfile('wine_nihonshu')
