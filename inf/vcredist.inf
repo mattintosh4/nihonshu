@@ -15,8 +15,8 @@ HKCU,%DllOverrides%,"comcat"      ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcirt"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcp60"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcrt"      ,,"native,builtin"
-HKCU,%DllOverrides%,"oleaut32"    ,,"native,builtin"
-HKCU,%DllOverrides%,"olepro32"    ,,"native,builtin"
+HKCU,%DllOverrides%,"oleaut32"    ,,"builtin,native"
+HKCU,%DllOverrides%,"olepro32"    ,,"builtin,native"
 HKCU,%DllOverrides%,"stdole2.tlb" ,,"native,builtin"
 
 ;;;;;;;;;;;;;;;;;;;

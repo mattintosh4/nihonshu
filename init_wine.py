@@ -174,10 +174,10 @@ def load_vcrun():
         wine(src_vcrun60, '/q', check=False)
         registerdlls = [
             'atl.dll'       ,
-            'comcat.dll'    ,
+#            'comcat.dll'    ,
             'mfc42.dll'     ,
-            'oleaut32.dll'  ,
-            'olepro32.dll'  ,
+#            'oleaut32.dll'  , # incompatibility
+#            'olepro32.dll'  , # incompatibility
         ]
         regsvr32(*registerdlls)
 
