@@ -77,15 +77,10 @@ def set_compiler():
   global archflags
   global optflags
 
-  GCC     = os.path.basename(mp_cmd('gcc-apple-4.2'))
-  GXX     = os.path.basename(mp_cmd('g++-apple-4.2'))
-  CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
-  CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
-
-  for f in [GCC, GXX, CLANG, CLANGXX]:
-    src = CCACHE
-    dst = os.path.join(PREFIX, 'bin', f)
-    os.symlink(src, dst)
+  GCC       = os.path.basename(mp_cmd('gcc-apple-4.2'))
+  GXX       = os.path.basename(mp_cmd('g++-apple-4.2'))
+  CLANG     = os.path.basename(mp_cmd('clang-mp-3.3'))
+  CLANGXX   = os.path.basename(mp_cmd('clang++-mp-3.3'))
 
   archflags = '-m32 -arch i386'
   optflags  = '-O2 -march=core2 -mtune=core2'
@@ -132,7 +127,6 @@ def set_env():
   os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
 
   os.environ['FONTFORGE']       = mp_cmd('fontforge')
-  os.environ['GIT']             = GIT
   os.environ['HELP2MAN']        = mp_cmd('help2man')
   os.environ['NASM']            = mp_cmd('nasm')
   os.environ['YASM']            = mp_cmd('yasm')
@@ -148,9 +142,32 @@ def set_env():
 
 #-------------------------------------------------------------------------------
 
+def set_symlink():
+  bindir = os.path.join(PREFIX, 'bin')
+  if not os.path.exists(bindir):
+    os.makedirs(bindir)
+  
+  for f in [
+    GCC,
+    GXX,
+    CLANG,
+    CLANGXX,
+  ]:
+    src = CCACHE
+    dst = os.path.join(bindir, f)
+    os.symlink(src, dst)
+
+  for f in [
+    GIT,
+  ]:
+    src = f
+    dst = os.path.join(bindir, os.path.basename(f))
+    os.symlink(src, dst)
+
+#-------------------------------------------------------------------------------
+
 def main():
   set_sdk()
   set_env()
   set_compiler()
-
-
+  set_symlink()
