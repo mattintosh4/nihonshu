@@ -7,7 +7,7 @@ DelFiles = DelFilesSection
 
 [DllOverrides]
 
-;;; Visual C++ 6.0 ;;;
+;;; Visual Basic/C++ 6.0 ;;;
 
 HKCU,%DllOverrides%,"atl"         ,,"native,builtin"
 HKCU,%DllOverrides%,"comcat"      ,,"native,builtin"

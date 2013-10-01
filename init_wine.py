@@ -157,22 +157,11 @@ def load_dx9():
     load_dx9_jun2010()
 
 #-------------------------------------------------------------------------------
-
-def load_vbrun():
-
-    src = os.path.join(PLUGINDIR, 'vbrun60sp6/vbrun60sp6.exe')
-    if not os.path.exists(src): return
-    message('Installing Visual Basic 6.0 SP 6')
-    wine(src, '/Q', check=False)
-    wine('wineboot.exe', '-r')
-
-#-------------------------------------------------------------------------------
-
 def load_vcrun():
 
-    def load_vcrun60():
-        message('Installing Visual C++ 6.0')
-        wine(src_vcrun60, '/q', check=False)
+    def load_vsrun6sp6():
+        message('Installing Visual Basic/C++ 6.0')
+        wine(src_vsrun6sp6, '/Q', check=False)
         wine('wineboot.exe', '-r')
 
     def load_vcrun2005():
@@ -193,14 +182,14 @@ def load_vcrun():
     #---------------------------------------------------------------------------
 
     inf           = os.path.join(PLUGINDIR, 'inf/vcredist.inf')
-    src_vcrun60   = os.path.join(PLUGINDIR, 'vcrun60/vcredist.exe')
+    src_vsrun6sp6 = os.path.join(PLUGINDIR, 'vsrun6sp6/vcredist.exe')
     src_vcrun2005 = os.path.join(PLUGINDIR, 'vcrun2005sp1_jun2011/vcredist_x86.exe')
     src_vcrun2008 = os.path.join(PLUGINDIR, 'vcrun2008sp1_jun2011/vcredist_x86.exe')
     src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1_aug2011/vcredist_x86.exe')
 
     for f in [
         inf,
-        src_vcrun60,
+        src_vsrun6sp6,
         src_vcrun2005,
         src_vcrun2008,
         src_vcrun2010,
@@ -208,11 +197,10 @@ def load_vcrun():
         if not os.path.exists(f): return
 
     rundll32(inf)
-    load_vcrun60()
+    load_vsrun6sp6()
     load_vcrun2005()
     load_vcrun2008()
     load_vcrun2010()
-    load_vbrun()
 
 #-------------------------------------------------------------------------------
 
