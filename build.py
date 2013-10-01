@@ -291,7 +291,7 @@ def install_support_files():
     vbrun60sp6  = os.path.join(PROJECT_ROOT, 'rsrc/vbrun60sp6/VB6.0-KB290887-X86.exe')
     vcrun60     = os.path.join(PROJECT_ROOT, 'rsrc/vcrun60/VC6RedistSetup_jpn.exe')
     vcrun2005   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2005sp1_jun2011')
-    vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1')
+    vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1_jun2011')
     vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1_aug2011')
 
     makedirs(destroot)
@@ -302,7 +302,7 @@ def install_support_files():
     p7zip('x', '-o' + os.path.join(destroot, 'vbrun60sp6'), vbrun60sp6)
     p7zip('x', '-o' + os.path.join(destroot, 'vcrun60'), vcrun60)
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1_jun2011'))
-    shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1'))
+    shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1_jun2011'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
 
     # INSTALL INF --------------------------------------------------------------
