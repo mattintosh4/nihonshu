@@ -190,9 +190,14 @@ make install
     if archive != False:
         binMake(archive)
 
+def docopy(name, *args):
+    docdir = os.path.join(W_DOCDIR, name)
+    makedirs(docdir)
+    for f in args:
+        src = f
+        dst = os.path.join(docdir, os.path.basename(f))
+        installFile(src, dst)
 
-def make_uninstall():
-    check_call(["make", "uninstall"])
 
 def patch(*args):
     for f in args:
@@ -269,7 +274,7 @@ def install_core_resources():
     # INSTALL PROJECT LICENSE --------------------------------------------------
     f   = 'LICENSE'
     src = os.path.join(PROJECT_ROOT, f)
-    dst = os.path.join(W_DATADIR, 'nihonshu', f)
+    dst = os.path.join(W_DOCDIR, 'nihonshu', f)
     installFile(src, dst)
 
     # INSTALL MODULE -----------------------------------------------------------
@@ -699,6 +704,15 @@ make install
     dst = os.path.join(W_BINDIR,     'wine')
     shutil.copy(src, dst)
     os.chmod(dst, 0755)
+
+    doccopy(
+        name,
+        'ANNOUNCE',
+        'AUTHORS',
+        'COPYING.LIB',
+        'LICENSE',
+        'README',
+    )
 # ----------------------------------------------------------------------------- winetricks / cabextract
 def build_winetricks():
 
@@ -714,6 +728,12 @@ def build_winetricks():
             cc     = CLANG,
         ))
         make_install(archive = name)
+        docopy(
+            name,
+            'AUTHORS',
+            'COPYING',
+            'README',
+        )
 
     def build_winetricks_core(name = 'winetricks'):
         message(name)
@@ -732,6 +752,11 @@ def build_winetricks():
         dst = os.path.join(W_BINDIR,     'winetricks')
         shutil.copy(src, dst)
         os.chmod(dst, 0755)
+
+        docopy(
+            name,
+            'src/COPYING'
+        )
 
     build_cabextract()
     build_winetricks_core()
