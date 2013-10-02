@@ -352,21 +352,20 @@ def build_gettext():
         )
         make_install(archive=name)
 # ----------------------------------------------------------------------------- glib
-def build_glib():
-    name = "glib"
+def build_glib(name = 'glib'):
     message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        git_checkout(branch="glib-2-36")
-        autogen()
-        configure(
-            "--disable-fam",
-            "--disable-selinux",
-            "--disable-silent-rules",
-            "--disable-xattr",
-            "--with-threads=posix",
-        )
-        make_install(archive=name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout(branch = 'glib-2-38')
+    autogen()
+    configure(
+        '--disable-fam',
+        '--disable-selinux',
+        '--disable-silent-rules',
+        '--disable-xattr',
+        '--with-threads=posix',
+    )
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- gmp
 def build_gmp():
     name = "gmp-5.1"
