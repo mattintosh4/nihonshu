@@ -707,10 +707,11 @@ def build_winetricks():
         if binCheck(name): return
         extract(name + '.tar.gz', 'cabextract-1.4')
         vsh("""
-./configure --prefix={prefix} --build={triple}
+./configure --prefix={prefix} --build={triple} CC={cc}
 """.format(
             prefix = W_PREFIX,
             triple = triple,
+            cc     = CLANG,
         ))
         make_install(archive = name)
 
