@@ -108,34 +108,21 @@ check_call(["sh", "-c", "declare"])
 # GNU Autotools #
 #---------------#
 class Autotools:
-    global AUTOTOOLS_PATH
-    AUTOTOOLS_PATH = "/opt/local/bin:/opt/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin"
 
-    ### autogen ###
     def autogen(self, *args):
         vsh("""
-PATH={path} \
-NOCONFIGURE=1 \
-./autogen.sh {autogen_args}
+PATH={path} NOCONFIGURE=1 ./autogen.sh {args}
 """.format(
-        path         = AUTOTOOLS_PATH,
-        autogen_args = " ".join(args),
+        path = AUTOTOOLS_PATH,
+        args = ' '.join(args),
     ))
     
-    ### autoreconf ###
-    def autoreconf(self, install=True, force=False, *args):
-        if install:
-            args = ("-i",) + args
-        if force:
-            args = ("-f",) + args
-
+    def autoreconf(self, *args):
         vsh("""
-PATH={path} \
-NOCONFIGURE=1 \
-autoreconf -v {autoreconf_args}
+PATH={path} NOCONFIGURE=1 autoreconf -v -i {args}
 """.format(
-        path            = AUTOTOOLS_PATH,
-        autoreconf_args = " ".join(args),
+        path = AUTOTOOLS_PATH,
+        args = ' '.join(args),
     ))
 
 autotools  = Autotools()
@@ -583,7 +570,7 @@ def build_orc():
     message(name)
     if not binCheck(name):
         reposcopy(name)
-        autoreconf(force=True)
+        autoreconf('-f')
         configure()
         make_install(archive=name)
 # ----------------------------------------------------------------------------- readline
@@ -649,12 +636,10 @@ def build_unixodbc(name = 'unixODBC'):
     message(name)
     if binCheck(name): return
     reposcopy(name)
-    autoreconf(force = True)
-    configure(
-        '--enable-static',
-    )
+    autoreconf('-f')
+    configure()
     makedirs(os.path.join(prefix, 'etc'))
-    make_install(archive=name)
+    make_install(archive = name)
 # ----------------------------------------------------------------------------- wine
 def build_wine(name = 'wine'):
     message(name)
