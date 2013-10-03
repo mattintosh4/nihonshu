@@ -78,18 +78,10 @@ def p7zip(*args):
 #-------------------------------------------------------------------------------
 
 def set_compiler():
-  global GCC
-  global GXX
-  global CLANG
-  global CLANGXX
+  
   global archflags
   global optflags
-
-  GCC       = os.path.basename(mp_cmd('gcc-apple-4.2'))
-  GXX       = os.path.basename(mp_cmd('g++-apple-4.2'))
-  CLANG     = os.path.basename(mp_cmd('clang-mp-3.3'))
-  CLANGXX   = os.path.basename(mp_cmd('clang++-mp-3.3'))
-
+  
   archflags = '-m32 -arch i386'
   optflags  = '-O2 -march=core2 -mtune=core2'
 
@@ -152,8 +144,7 @@ def set_env():
 
 def set_symlink():
   bindir = os.path.join(PREFIX, 'bin')
-  if not os.path.exists(bindir):
-    os.makedirs(bindir)
+  os.path.exists(bindir) or os.makedirs(bindir)
   
   for f in [
     GCC,

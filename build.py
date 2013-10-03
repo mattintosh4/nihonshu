@@ -69,7 +69,7 @@ os.symlink(W_LIBDIR, LIBDIR)
 #-------------------------------------------------------------------------------
 
 import build_preset as my
-my.PREFIX = prefix
+my.PREFIX = PREFIX
 my.main()
 
 CCACHE  = my.CCACHE
@@ -77,6 +77,8 @@ GCC     = my.GCC
 GXX     = my.GXX
 CLANG   = my.CLANG
 CLANGXX = my.CLANGXX
+P7ZIP   = my.P7ZIP
+AUTOTOOLS_PATH = my.AUTOTOOLS_PATH
 
 git_checkout = my.git_checkout
 hg_update    = my.hg_update
@@ -104,9 +106,6 @@ configure_format = dict(prefix    = prefix,
 
 check_call(["sh", "-c", "declare"])
 
-#---------------#
-# GNU Autotools #
-#---------------#
 class Autotools:
 
     def autogen(self, *args):
@@ -129,6 +128,7 @@ autotools  = Autotools()
 autogen    = autotools.autogen
 autoreconf = autotools.autoreconf
 
+#-------------------------------------------------------------------------------
 
 def reposcopy(name):
     src = os.path.join(PROJECT_ROOT, 'src', name)
@@ -137,19 +137,21 @@ def reposcopy(name):
     shutil.copytree(src, dst, True)
     os.chdir(dst)
 
-configure_pre_args = (
-    "--prefix=" + prefix,
-    "--build="  + triple,
-    "--enable-shared",
-    "--disable-dependency-tracking",
-)
-def configure(*args, **kwargs):
+
+def configure(*args):
+    _args = [
+        '--enable-shared',
+        '--disable-dependency-tracking',
+    ]
+    _args.extend(args)
+
     vsh("""
 readlink(){{ /opt/local/bin/greadlink "$@"; }}; export -f readlink
-./configure {configure_pre_args} {configure_args}
+./configure --prefix={prefix} --build={triple} {args}
 """.format(
-        configure_pre_args = " ".join(configure_pre_args),
-        configure_args     = " ".join(args),
+        prefix = PREFIX,
+        triple = triple,
+        args   = ' '.join(_args),
     ))
 
 
