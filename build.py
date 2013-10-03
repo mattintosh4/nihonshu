@@ -7,64 +7,65 @@ import re
 import sys
 import shutil
 
+
 def get_stdout(cmd, *args):
     ps      = Popen((cmd,) + args, stdout=PIPE)
     stdout  = ps.communicate()[0].strip()
     retcode = ps.returncode
-    if retcode == 0:
-        return stdout
-    else:
-        sys.exit(retcode)
+    retcode == 0 or sys.exit(retcode)
+    return stdout
 
 def vsh(script):
     ps = Popen(["sh", "-ve"], stdin=PIPE)
     ps.communicate(script)
-    if ps.returncode != 0:
-        sys.exit(ps.retcode)
+    retcode = ps.returncode
+    retcode == 0 or sys.exit(retcode)
 
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 
-#distname        = 'wine_nihonshu'
-distname        = 'wine_nihonshu_dx9'
-
-prefix          = "/usr/local/wine/SharedSupport"
-BUILDROOT       = os.path.join(prefix, "build")
-BINDIR          = os.path.join(prefix, 'bin')
-SBINDIR         = os.path.join(prefix, 'sbin')
-DATADIR         = os.path.join(prefix, 'share')
-INCDIR          = os.path.join(prefix, 'include')
-LIBDIR          = os.path.join(prefix, 'lib')
-LIBEXECDIR      = os.path.join(prefix, 'libexec')
-SYSCONFDIR      = os.path.join(prefix, 'etc')
-
-W_PREFIX        = '/usr/local/wine'
-W_BINDIR        = os.path.join(W_PREFIX, 'bin')
-W_DATADIR       = os.path.join(W_PREFIX, 'share')
-W_DOCDIR        = os.path.join(W_DATADIR, 'doc')
-W_INCDIR        = os.path.join(W_PREFIX, 'include')
-W_LIBDIR        = os.path.join(W_PREFIX, 'lib')
-W_LIBEXECDIR    = os.path.join(W_PREFIX, 'libexec')
-
+PROJECT_ROOT    = os.path.dirname(os.path.abspath(__file__))
 DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
 SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
 
-if os.path.exists(W_PREFIX):
-    shutil.rmtree(W_PREFIX)
-for f in [
-    DEPOSROOT,
-    BUILDROOT,
-    BINDIR,
-    INCDIR,
-    W_BINDIR,
-    W_DATADIR,
-    W_INCDIR,
-    W_LIBDIR,
-    W_LIBEXECDIR,
-]:
-    if not os.path.exists(f):
-        os.makedirs(f)
+prefix          = "/usr/local/wine/SharedSupport"
+PREFIX          = prefix
+BUILDROOT       = os.path.join(PREFIX, 'build')
 
-os.symlink(W_LIBDIR, LIBDIR)
+BINDIR          = os.path.join(PREFIX, 'bin')
+SBINDIR         = os.path.join(PREFIX, 'sbin')
+DATADIR         = os.path.join(PREFIX, 'share')
+INCDIR          = os.path.join(PREFIX, 'include')
+LIBDIR          = os.path.join(PREFIX, 'lib')
+LIBEXECDIR      = os.path.join(PREFIX, 'libexec')
+SYSCONFDIR      = os.path.join(PREFIX, 'etc')
+
+W_PREFIX        = '/usr/local/wine'
+W_BINDIR        = os.path.join(W_PREFIX,  'bin')
+W_DATADIR       = os.path.join(W_PREFIX,  'share')
+W_DOCDIR        = os.path.join(W_DATADIR, 'doc')
+W_INCDIR        = os.path.join(W_PREFIX,  'include')
+W_LIBDIR        = os.path.join(W_PREFIX,  'lib')
+W_LIBEXECDIR    = os.path.join(W_PREFIX,  'libexec')
+
+
+def prepare():
+    not os.path.exists(W_PREFIX) or shutil.rmtree(W_PREFIX)
+    os.makedirs(PREFIX)
+    os.symlink(W_LIBDIR, LIBDIR)
+    for f in [
+        DEPOSROOT,
+        BUILDROOT,
+        BINDIR,
+        INCDIR,
+        W_BINDIR,
+        W_DATADIR,
+        W_INCDIR,
+        W_LIBDIR,
+        W_LIBEXECDIR,
+    ]:
+        os.path.exists(f) or os.makedirs(f)
+prepare()
+
+
 
 #-------------------------------------------------------------------------------
 
@@ -92,8 +93,8 @@ triple      = "i686-apple-darwin" + os.uname()[2]
 configure_format = dict(prefix    = prefix,
                         triple    = triple,
                         jobs      = ncpu,
-                        cc        = CLANG,
-                        cxx       = CLANGXX,
+                        cc        = os.environ['CC'],
+                        cxx       = os.environ['CXX'],
                         gcc       = GCC,
                         gxx       = GXX,
                         archflags = my.archflags,
@@ -103,8 +104,9 @@ configure_format = dict(prefix    = prefix,
                         incdir    = INCDIR,
                         libdir    = LIBDIR)
 
+check_call(['sh', '-c', 'declare'])
 
-check_call(["sh", "-c", "declare"])
+#-------------------------------------------------------------------------------
 
 class Autotools:
 
@@ -186,18 +188,19 @@ def patch(*args):
 
 
 def message(*args):
-    print "\033[33m*** %s ***\033[m" % " ".join(args)
+    print >> sys.stdout, '\033[33m' + '*** %s ***' % ' '.join(args) + '\033[m'
 
 
 def extract(src, dst):
     src = os.path.join(SRCROOT, src)
     os.chdir(BUILDROOT)
-    if os.path.splitext(src)[-1] == ".xz":
-        xzcat = Popen(["xzcat", src], stdout=PIPE)
-        check_call(["tar", "xf", "-"], stdin=xzcat.stdout)
+    if os.path.splitext(src)[-1] == '.xz':
+        src = Popen([P7ZIP, 'x', '-so', src], stdout = PIPE)
+        check_call(['tar', 'xf', '-'], stdin = src.stdout)
     else:
-        check_call(["tar", "xf", src])
+        check_call(['tar', 'xf', src])
     os.chdir(dst)
+
 
 def binMake(name):
     vsh("""
