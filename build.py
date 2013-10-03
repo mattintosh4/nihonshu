@@ -177,14 +177,6 @@ make install
     if archive != False:
         binMake(archive)
 
-def docopy(name, *args):
-    docdir = os.path.join(W_DOCDIR, name)
-    makedirs(docdir)
-    for f in args:
-        src = f
-        dst = os.path.join(docdir, os.path.basename(f))
-        installFile(src, dst)
-
 
 def patch(*args):
     for f in args:
@@ -243,15 +235,27 @@ def rm(path):
             os.remove(path)
             print >> sys.stderr, '\033[31m' + 'removed: %s' % path + '\033[m'
 
+
 def makedirs(path):
     if not os.path.exists(path):
         os.makedirs(path)
         print >> sys.stderr, '\033[32m' + 'created: %s' % path + '\033[m'
 
+
 def installFile(src, dst):
     makedirs(os.path.dirname(dst))
     shutil.copy(src, dst)
     print >> sys.stderr, '\033[32m' + 'installed: %s -> %s' % (src, dst) + '\033[m'
+
+
+def installDoc(name, *args):
+    docdir = os.path.join(W_DOCDIR, name)
+    makedirs(docdir)
+    for f in args:
+        src = f
+        dst = os.path.join(docdir, os.path.basename(f))
+        installFile(src, dst)
+
 
 # ------------------------------------------------------------------------------
 # Build section
@@ -689,7 +693,7 @@ make install
     shutil.copy(src, dst)
     os.chmod(dst, 0755)
 
-    doccopy(
+    installDoc(
         name,
         'ANNOUNCE',
         'AUTHORS',
@@ -702,7 +706,6 @@ def build_winetricks():
 
     def build_cabextract(name = 'cabextract-1.4'):
         message(name)
-        if binCheck(name): return
         extract(name + '.tar.gz', 'cabextract-1.4')
         vsh("""
 ./configure --prefix={prefix} --build={triple} CC={cc}
@@ -712,8 +715,8 @@ def build_winetricks():
             cc     = CLANG,
         ))
         make_install(archive = name)
-        docopy(
-            name,
+        installDoc(
+            'cabextract',
             'AUTHORS',
             'COPYING',
             'README',
@@ -737,9 +740,9 @@ def build_winetricks():
         shutil.copy(src, dst)
         os.chmod(dst, 0755)
 
-        docopy(
+        installDoc(
             name,
-            'src/COPYING'
+            'src/COPYING',
         )
 
     build_cabextract()
