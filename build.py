@@ -765,7 +765,10 @@ def build_zlib(name = 'zlib'):
     if binCheck(name): return
     reposcopy(name)
     git_checkout()
-    vsh("""./configure --prefix={prefix}""".format(**configure_format))
+    vsh("""CC={clang} ./configure --prefix={prefix}""".format(
+        clang  = CLANG,
+        prefix = PREFIX,
+    ))
     make_install(archive = name)
 # ============================================================================ #
 def finalize():
