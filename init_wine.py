@@ -36,6 +36,11 @@ def cabextract(*args):
 
 #-------------------------------------------------------------------------------
 
+def load_7z():
+    inf = os.path.join(PLUGINDIR, 'inf/7z.inf')
+    if not os.path.exists(inf): return
+    rundll32(inf)
+
 def load_osx_inf():
     inf = os.path.join(PLUGINDIR, 'inf/osx-wine.inf')
     rundll32(inf)
@@ -217,4 +222,5 @@ def main():
     ### PHASE 3 ###
     load_vcrun()
     load_dx9()
+    load_7z()
     if sys.argv[1] == '--force-init': sys.exit()

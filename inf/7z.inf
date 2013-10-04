@@ -1,0 +1,73 @@
+[version]
+signature="$CHICAGO$"
+
+[DefaultInstall]
+AddReg=\
+  Classes,\
+  Environment
+
+[Strings]
+AppRoot = Z:\usr\local\wine\share\wine\plugin\7-Zip
+Program = Z:\usr\local\wine\share\wine\plugin\7-Zip\7zFM.exe
+Library = Z:\usr\local\wine\share\wine\plugin\7-Zip\7z.dll
+
+[Classes]
+
+;;; 7Z ;;;
+
+HKCR,.7z                            ,,2,"7-Zip.7z"
+HKCR,7-Zip.7z                       ,,2,"7z Archive"
+HKCR,7-Zip.7z\shell\open\command    ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.7z\DefaultIcon           ,,2,"%Library%,0"
+
+;;; CAB ;;;
+
+HKCR,.cab                           ,,2,"7-Zip.cab"
+HKCR,7-Zip.cab                      ,,2,"cab Archive"
+HKCR,7-Zip.cab\shell\open\command   ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.cab\DefaultIcon          ,,2,"%Library%,7"
+
+;;; LHA ;;;
+
+HKCR,.lha                           ,,2,"7-Zip.lha"
+HKCR,7-Zip.lha                      ,,2,"lha Archive"
+HKCR,7-Zip.lha\shell\open\command   ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.lha\DefaultIcon          ,,2,"%Library%,6"
+
+;;; LZH ;;;
+
+HKCR,.lzh                           ,,2,"7-Zip.lzh"
+HKCR,7-Zip.lzh                      ,,2,"lzh Archive"
+HKCR,7-Zip.lzh\shell\open\command   ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.lzh\DefaultIcon          ,,2,"%Library%,6"
+
+;;; LZMA ;;;
+
+HKCR,.lzma                          ,,2,"7-Zip.lzma"
+HKCR,7-Zip.lzma                     ,,2,"lzma Archive"
+HKCR,7-Zip.lzma\shell\open\command  ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.lzma\DefaultIcon         ,,2,"%Library%,16"
+
+;;; RAR ;;;
+
+HKCR,.rar                           ,,2,"7-Zip.rar"
+HKCR,7-Zip.rar                      ,,2,"rar Archive"
+HKCR,7-Zip.rar\shell\open\command   ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.rar\DefaultIcon          ,,2,"%Library%,3"
+
+;;; XZ ;;;
+
+HKCR,.xz                            ,,2,"7-Zip.xz"
+HKCR,7-Zip.xz                       ,,2,"xz Archive"
+HKCR,7-Zip.xz\shell\open\command    ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.xz\DefaultIcon           ,,2,"%Library%,23"
+
+;;; ZIP ;;;
+
+HKCR,.zip                           ,,2,"7-Zip.zip"
+HKCR,7-Zip.zip                      ,,2,"zip Archive"
+HKCR,7-Zip.zip\shell\open\command   ,,2,"""%Program%"" ""%1"""
+HKCR,7-Zip.zip\DefaultIcon          ,,2,"%Library%,1"
+
+[Environment]
+HKCU,Environment,"PATH",0x00020002,"%AppRoot%"

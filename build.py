@@ -286,6 +286,16 @@ def install_core_resources():
     installFile(src, dst)
 
 def install_support_files():
+
+    def install_support_files_7z():
+        src = os.path.join(PROJECT_ROOT, 'rsrc/7z922.exe')
+        dst = os.path.join(destroot, '7-Zip')
+        p7zip('x', '-o' + dst, src, '-x!$*')
+
+        src = os.path.join(PROJECT_ROOT, 'inf/7z.inf')
+        dst = os.path.join(destroot,     'inf/7z.inf')
+        installFile(src, dst)
+
     destroot    = os.path.join(W_DATADIR, 'wine/plugin')
     dx9_feb2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_feb2010_redist.exe')
     dx9_jun2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_Jun2010_redist.exe')
@@ -303,6 +313,8 @@ def install_support_files():
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1_jun2011'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1_jun2011'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
+
+    install_support_files_7z()
 
     # INSTALL INF --------------------------------------------------------------
     for f in [
