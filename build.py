@@ -21,6 +21,11 @@ def vsh(script):
     retcode = ps.returncode
     retcode == 0 or sys.exit(retcode)
 
+def makedirs(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+        print >> sys.stderr, '\033[32m' + 'created: %s' % path + '\033[m'
+
 
 PROJECT_ROOT    = os.path.dirname(os.path.abspath(__file__))
 DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
@@ -35,7 +40,6 @@ SBINDIR         = os.path.join(PREFIX, 'sbin')
 DATADIR         = os.path.join(PREFIX, 'share')
 INCDIR          = os.path.join(PREFIX, 'include')
 LIBDIR          = os.path.join(PREFIX, 'lib')
-LIBEXECDIR      = os.path.join(PREFIX, 'libexec')
 SYSCONFDIR      = os.path.join(PREFIX, 'etc')
 
 W_PREFIX        = '/usr/local/wine'
@@ -47,25 +51,23 @@ W_LIBDIR        = os.path.join(W_PREFIX,  'lib')
 W_LIBEXECDIR    = os.path.join(W_PREFIX,  'libexec')
 
 
-def prepare():
-    not os.path.exists(W_PREFIX) or shutil.rmtree(W_PREFIX)
-    os.makedirs(PREFIX)
-    os.symlink(W_LIBDIR, LIBDIR)
-    for f in [
-        DEPOSROOT,
-        BUILDROOT,
-        BINDIR,
-        INCDIR,
-        W_BINDIR,
-        W_DATADIR,
-        W_INCDIR,
-        W_LIBDIR,
-        W_LIBEXECDIR,
-    ]:
-        os.path.exists(f) or os.makedirs(f)
-prepare()
-
-
+not os.path.exists(W_PREFIX) or shutil.rmtree(W_PREFIX)
+for f in [
+    DEPOSROOT,
+    BUILDROOT,
+    BINDIR,
+    SBINDIR,
+    DATADIR,
+    INCDIR,
+    SYSCONFDIR,
+    W_BINDIR,
+    W_DATADIR,
+    W_INCDIR,
+    W_LIBDIR,
+    W_LIBEXECDIR,
+]:
+    makedirs(f)
+os.symlink(W_LIBDIR, LIBDIR)
 
 #-------------------------------------------------------------------------------
 
@@ -232,6 +234,7 @@ make install
     else:
         return False
 
+
 def rm(path):
     if os.path.exists(path):
         if os.path.isdir(path):
@@ -240,12 +243,6 @@ def rm(path):
         else:
             os.remove(path)
             print >> sys.stderr, '\033[31m' + 'removed: %s' % path + '\033[m'
-
-
-def makedirs(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-        print >> sys.stderr, '\033[32m' + 'created: %s' % path + '\033[m'
 
 
 def installFile(src, dst):
