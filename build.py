@@ -81,6 +81,7 @@ CLANGXX = my.CLANGXX
 P7ZIP   = my.P7ZIP
 AUTOTOOLS_PATH = my.AUTOTOOLS_PATH
 
+cabextract   = my.cabextract
 git_checkout = my.git_checkout
 hg_update    = my.hg_update
 p7zip        = my.p7zip
@@ -285,9 +286,9 @@ def install_core_resources():
     dst = os.path.join(W_DATADIR, 'wine/plugin/inf', f)
     installFile(src, dst)
 
-def install_support_files():
+def install_plugin():
 
-    def install_support_files_7z():
+    def install_plugin_7z():
         src = os.path.join(PROJECT_ROOT, 'rsrc/7z922.exe')
         dst = os.path.join(destroot, '7-Zip')
         p7zip('x', '-o' + dst, src, '-x!$*')
@@ -296,10 +297,26 @@ def install_support_files():
         dst = os.path.join(destroot,     'inf/7z.inf')
         installFile(src, dst)
 
+    def install_plugin_vsrun6():
+        src = os.path.join(PROJECT_ROOT, 'rsrc/vsrun6sp6/Vs6sp6.exe')
+
+        # Visual Basic 6.0 SP 6 ------------------------------------------------
+        dst     = os.path.join(destroot, 'vbrun6sp6')
+        sub_src = 'vbrun60.cab'
+        cabextract('-L', '-d', dst, '-F', sub_src, src)
+
+        sub_src = os.path.join(dst, sub_src)
+        cabextract('-L', '-d', dst, sub_src)
+        os.remove(sub_src)
+
+        # Visual C++ 6.0 SP 6 --------------------------------------------------
+        dst     = os.path.join(destroot, 'vcrun6sp6')
+        sub_src = 'vcredist.exe'
+        cabextract('-L', '-d', dst, '-F', sub_src, src)
+
     destroot    = os.path.join(W_DATADIR, 'wine/plugin')
     dx9_feb2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_feb2010_redist.exe')
     dx9_jun2010 = os.path.join(PROJECT_ROOT, 'rsrc/directx9/directx_Jun2010_redist.exe')
-    vsrun6sp6   = os.path.join(PROJECT_ROOT, 'rsrc/vsrun6sp6/Vs6sp6.exe')
     vcrun2005   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2005sp1_jun2011')
     vcrun2008   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2008sp1_jun2011')
     vcrun2010   = os.path.join(PROJECT_ROOT, 'rsrc/vcrun2010sp1_aug2011')
@@ -309,17 +326,17 @@ def install_support_files():
     # INSTALL RUNTIME ----------------------------------------------------------
     p7zip('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010)
     p7zip('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
-    p7zip('x', '-o' + os.path.join(destroot, 'vsrun6sp6'), vsrun6sp6, 'vcredist.exe')
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1_jun2011'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1_jun2011'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
 
-    install_support_files_7z()
+    install_plugin_vsrun6()
+    install_plugin_7z()
 
     # INSTALL INF --------------------------------------------------------------
     for f in [
         'inf/dxredist.inf',
-        'inf/vcredist.inf',
+        'inf/vsredist.inf',
         'inf/win2k.reg',
         'inf/winxp.reg',
     ]:
@@ -838,7 +855,7 @@ def finalize():
 
     install_core_resources()
     create_distfile('wine_nihonshu_no-plugin')
-    install_support_files()
+    install_plugin()
     create_distfile('wine_nihonshu')
 
 # ============================================================================ #

@@ -7,16 +7,19 @@ DelFiles = DelFilesSection
 
 [DllOverrides]
 
-;;; Visual Basic/C++ 6.0 ;;;
+;;; Visual Basic 6.0 SP 6 ;;;
+
+HKCU,%DllOverrides%,"oleaut32"    ,,"builtin,native"
+HKCU,%DllOverrides%,"olepro32"    ,,"builtin,native"
+HKCU,%DllOverrides%,"stdole2.tlb" ,,"builtin,native"
+
+;;; Visual C++ 6.0 SP 6 ;;;
 
 HKCU,%DllOverrides%,"atl"         ,,"native,builtin"
 HKCU,%DllOverrides%,"comcat"      ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcirt"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcp60"     ,,"native,builtin"
 HKCU,%DllOverrides%,"msvcrt"      ,,"native,builtin"
-HKCU,%DllOverrides%,"oleaut32"    ,,"builtin,native"
-HKCU,%DllOverrides%,"olepro32"    ,,"builtin,native"
-HKCU,%DllOverrides%,"stdole2.tlb" ,,"native,builtin"
 
 ;;; Visual C++ 2005 ;;;
 

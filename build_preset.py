@@ -50,17 +50,24 @@ xcodebuild -version -sdk macosx%s | sed -n '/^Path: /s///p'
 
 #-------------------------------------------------------------------------------
 
-GCC     = os.path.basename(mp_cmd('gcc-apple-4.2'))
-GXX     = os.path.basename(mp_cmd('g++-apple-4.2'))
-CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
-CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
-GIT     = mp_cmd('git')
-HG      = mp_cmd('hg')
-P7ZIP   = mp_cmd('7z')
+GCC        = os.path.basename(mp_cmd('gcc-apple-4.2'))
+GXX        = os.path.basename(mp_cmd('g++-apple-4.2'))
+CLANG      = os.path.basename(mp_cmd('clang-mp-3.3'))
+CLANGXX    = os.path.basename(mp_cmd('clang++-mp-3.3'))
+
+CABEXTRACT = mp_cmd('cabextract')
+GIT        = mp_cmd('git')
+HG         = mp_cmd('hg')
+P7ZIP      = mp_cmd('7z')
 
 AUTOTOOLS_PATH = ':'.join([os.path.join(MACPORTS_PREFIX, 'bin'),
                            os.path.join(MACPORTS_PREFIX, 'sbin'),
                            '/usr/bin:/bin:/usr/sbin:/sbin'])
+
+def cabextract(*args):
+  cmd = [CABEXTRACT]
+  cmd.extend(args)
+  subprocess.check_call(cmd)
 
 def git_checkout(branch = 'master'):
   cmd = [GIT, 'checkout', '-f', branch]

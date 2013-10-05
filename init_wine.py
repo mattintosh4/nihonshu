@@ -20,6 +20,9 @@ def wine(*args, **kwargs):
     else:
         check_call(cmd)
 
+def wine_restart():
+    wine('wineboot.exe', '-r')
+
 def regsvr32(*args):
     wine('regsvr32.exe', *args)
 
@@ -53,17 +56,17 @@ def load_dx9():
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/win2k.reg'))
         wine(src_dx9_feb2010, '/silent', check=False)
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
         ### XP mode ###
         message('Installing DirectX 9 (phase 2)')
         wine(src_dx9_feb2010, '/silent', check=False)
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
     def load_dx9_jun2010():
         message('Installing DirectX 9 (phase 3)')
         wine(src_dx9_jun2010, '/silent', check=False)
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
         registerdlls = [
             'amstream.dll'      ,
@@ -162,39 +165,46 @@ def load_dx9():
     load_dx9_jun2010()
 
 #-------------------------------------------------------------------------------
-def load_vcrun():
+def load_vsrun():
 
-    def load_vsrun6sp6():
-        message('Installing Visual Basic/C++ 6.0')
-        wine(src_vsrun6sp6, '/Q', check=False)
-        wine('wineboot.exe', '-r')
+    def load_vbrun6():
+        message('Installing Visual Basic 6.0')
+        wine(src_vbrun6, '/Q', check = False)
+        wine_restart()
+
+    def load_vcrun6():
+        message('Installing Visual C++ 6.0')
+        wine(src_vcrun6, '/Q', check = False)
+        wine_restart()
 
     def load_vcrun2005():
         message('Installing Visual C++ 2005')
         wine(src_vcrun2005, '/q')
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
     def load_vcrun2008():
         message('Installing Visual C++ 2008 SP 1')
         wine(src_vcrun2008, '/q')
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
     def load_vcrun2010():
         message('Installing Visual C++ 2010 SP 1')
         wine(src_vcrun2010, '/q')
-        wine('wineboot.exe', '-r')
+        wine_restart()
 
     #---------------------------------------------------------------------------
 
-    inf           = os.path.join(PLUGINDIR, 'inf/vcredist.inf')
-    src_vsrun6sp6 = os.path.join(PLUGINDIR, 'vsrun6sp6/vcredist.exe')
+    inf           = os.path.join(PLUGINDIR, 'inf/vsredist.inf')
+    src_vbrun6    = os.path.join(PLUGINDIR, 'vbrun6sp6/vbrun60.exe')
+    src_vcrun6    = os.path.join(PLUGINDIR, 'vcrun6sp6/vcredist.exe')
     src_vcrun2005 = os.path.join(PLUGINDIR, 'vcrun2005sp1_jun2011/vcredist_x86.exe')
     src_vcrun2008 = os.path.join(PLUGINDIR, 'vcrun2008sp1_jun2011/vcredist_x86.exe')
     src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1_aug2011/vcredist_x86.exe')
 
     for f in [
         inf,
-        src_vsrun6sp6,
+        src_vbrun6,
+        src_vcrun6,
         src_vcrun2005,
         src_vcrun2008,
         src_vcrun2010,
@@ -202,7 +212,8 @@ def load_vcrun():
         if not os.path.exists(f): return
 
     rundll32(inf)
-    load_vsrun6sp6()
+    load_vbrun6()
+    load_vcrun6()
     load_vcrun2005()
     load_vcrun2008()
     load_vcrun2010()
@@ -220,7 +231,7 @@ def main():
     if sys.argv[1] == '--suppress-init': sys.exit()
 
     ### PHASE 3 ###
-    load_vcrun()
+    load_vsrun()
     load_dx9()
     load_7z()
     if sys.argv[1] == '--force-init': sys.exit()
