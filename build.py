@@ -450,50 +450,57 @@ def build_gnutls():
 # ----------------------------------------------------------------------------- gphoto2
 def build_libgphoto2():
 
-    def build_libexif():
-        name = "libexif-0.6.21"
+    def build_libexif(name = 'libexif-0.6.21'):
         message(name)
-        if not binCheck(name):
-            extract(name + '.tar.bz2', name)
-            configure(
-                "--disable-docs",
-                "--disable-nls",
-                "--with-doc-dir=" + os.path.join(prefix, 'share/doc', name),
-            )
-            make_install(archive=name)
-    build_libexif()
-
-    def build_popt():
-        name = "popt-1.14"
-        message(name)
-        if not binCheck(name):
-            extract(name + '.tar.gz', name)
-            configure(
-                "--disable-nls",
-            )
-            make_install(archive=name)
-    build_popt()
-
-    def build_gd():
-        name = "libgd-2.1.0"
-        message(name)
-        if not binCheck(name):
-            extract(name + '.tar.xz', name)
-            configure()
-            make_install(archive=name)
-    build_gd()
-
-    name = "libgphoto2"
-    message(name)
-    if not binCheck(name):
-        reposcopy(name)
-        autoreconf("-s")
+        if binCheck(name): return
+        extract(name + '.tar.bz2', name)
         configure(
+            "--disable-docs",
             "--disable-nls",
-            "--with-drivers=all",
-            "CFLAGS='%s -D_DARWIN_C_SOURCE'" % os.getenv('CFLAGS'),
+            "--with-doc-dir=" + os.path.join(prefix, 'share/doc', name),
         )
-        make_install(archive=name)
+        make_install(archive = name)
+
+    def build_popt(name = 'popt-1.14'):
+        message(name)
+        if binCheck(name): return
+        extract(name + '.tar.gz', name)
+        configure(
+            '--disable-nls',
+        )
+        make_install(archive = name)
+
+    def build_gd(name = 'libgd-2.1.0'):
+        message(name)
+        if binCheck(name): return
+        extract(name + '.tar.xz', name)
+        configure(
+            '--without-fontconfig',
+            '--without-x',
+            '--with-freetype=' + PREFIX,
+            '--with-jpeg='     + PREFIX,
+            '--with-png='      + PREFIX,
+            '--with-tiff='     + PREFIX,
+            '--with-zlib='     + PREFIX,
+        )
+        make_install(archive = name)
+
+    def build_libgphoto2_core(name = 'libgphoto2'):
+        message(name)
+        if binCheck(name): return
+        reposcopy(name)
+        autoreconf('-s')
+        configure(
+            '--disable-nls',
+            '--with-drivers=all',
+            'CFLAGS="%s -D_DARWIN_C_SOURCE"' % os.getenv('CFLAGS'),
+        )
+        make_install(archive = name)
+
+    build_libexif()
+    build_popt()
+    build_gd()
+    build_libgphoto2_core()
 # ----------------------------------------------------------------------------- gsm
 def build_gsm():
     name = "gsm-1.0.13"
