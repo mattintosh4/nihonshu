@@ -50,8 +50,8 @@ xcodebuild -version -sdk macosx%s | sed -n '/^Path: /s///p'
 
 #-------------------------------------------------------------------------------
 
-GCC        = os.path.basename(mp_cmd('gcc-apple-4.2'))
-GXX        = os.path.basename(mp_cmd('g++-apple-4.2'))
+GCC        = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
+GXX        = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
 CLANG      = os.path.basename(mp_cmd('clang-mp-3.3'))
 CLANGXX    = os.path.basename(mp_cmd('clang++-mp-3.3'))
 
@@ -89,15 +89,15 @@ def set_compiler():
   global archflags
   global optflags
   
-  archflags = '-m32 -arch i386'
-  optflags  = '-O2 -march=core2 -mtune=core2'
+#  archflags = '-m32 -arch i386'
+  optflags  = '-O3 -mtune=generic'
 
-  env_append('CFLAGS', archflags)
+#  env_append('CFLAGS', archflags)
   env_append('CFLAGS', optflags)
-  
-  env_append('CPPFLAGS', '-isysroot %s' % sdkroot)
+  env_append('CFLAGS', '-isysroot %s' % sdkroot)
+
   env_append('CPPFLAGS', '-I' + os.path.join(PREFIX, 'include'))
-  
+
   env_append('LDFLAGS', '-Wl,-search_paths_first,-headerpad_max_install_names')
   env_append('LDFLAGS', '-Wl,-syslibroot,%s' % sdkroot)
   env_append('LDFLAGS', '-Wl,-arch,i386')

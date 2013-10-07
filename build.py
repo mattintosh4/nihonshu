@@ -100,7 +100,6 @@ configure_format = dict(prefix    = prefix,
                         cxx       = os.environ['CXX'],
                         gcc       = GCC,
                         gxx       = GXX,
-                        archflags = my.archflags,
                         optflags  = my.optflags,
                         sdkroot   = my.sdkroot,
                         osxver    = my.osx_ver,
@@ -503,7 +502,7 @@ def build_gsm():
     vsh("""
 make {install_name} \
 CC='{gcc} -ansi -pedantic' \
-CCFLAGS='-c -O2 -DNeedFunctionPrototypes=1 -m32 -arch i386' \
+CCFLAGS='-c -O3 -mtune=generic -DNeedFunctionPrototypes=1' \
 LDFLAGS='{ldflags}' \
 LIBGSM='{install_name}' \
 AR='{gcc}' \
@@ -740,11 +739,10 @@ def build_winetricks():
         message(name)
         extract(name + '.tar.gz', 'cabextract-1.4')
         vsh("""
-./configure --prefix={prefix} --build={triple} CC={cc}
+./configure --prefix={prefix} --build={triple}
 """.format(
             prefix = W_PREFIX,
             triple = triple,
-            cc     = CLANG,
         ))
         make_install(archive = name)
         installDoc(
@@ -797,10 +795,7 @@ def build_zlib(name = 'zlib'):
     if binCheck(name): return
     reposcopy(name)
     git_checkout()
-    vsh("""CC={clang} ./configure --prefix={prefix}""".format(
-        clang  = CLANG,
-        prefix = PREFIX,
-    ))
+    vsh("""./configure --prefix={prefix}""".format(prefix = PREFIX))
     make_install(archive = name)
 # ============================================================================ #
 def finalize():
