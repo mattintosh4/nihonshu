@@ -806,6 +806,8 @@ def build_zlib(name = 'zlib'):
 def finalize():
     os.chdir(W_PREFIX)
 
+    create_app()
+
     for root, dirs, files in os.walk(W_LIBDIR):
         if root == os.path.join(W_LIBDIR, 'wine'): continue
 
@@ -856,7 +858,43 @@ def finalize():
     install_plugin()
     create_distfile('wine_nihonshu')
 
-# ============================================================================ #
+#-------------------------------------------------------------------------------
+
+def create_app(srcroot = os.path.join(PROJECT_ROOT, 'app')):
+
+    def create_app_7z(destroot = os.path.join(W_PREFIX, '7zFM.app')):
+        src = os.path.join(srcroot, '7z.applescript')
+        cmd = ['osacompile', '-x', '-o', destroot, src]
+        check_call(cmd)
+
+        src = os.path.join(srcroot, '7z.icns')
+        dst = os.path.join(destroot, 'Contents/Resources/droplet.icns')
+        shutil.copy(src, dst)
+
+        src = os.path.join(srcroot, '7z.info.plist.in')
+        dst = os.path.join(destroot, 'Contents/Info.plist')
+        shutil.copy(src, dst)
+
+    def create_app_nihonshu(destroot = os.path.join(W_PREFIX, 'Nihonshu.app')):
+        src = os.path.join(srcroot, 'nihonshu.applescript')
+        cmd = ['osacompile', '-x', '-o', destroot, src]
+
+#        src = os.path.join(srcroot, 'nihonshu.icns')
+        dst = os.path.join(destroot, 'Contents/Resources/droplet.icns')
+#        shutil.copy(src, dst)
+        os.remove(dst)
+
+        src = os.path.join(srcroot, 'nihonshu.info.plist.in')
+        dst = os.path.join(destroot, 'Contents/Info.plist')
+        shutil.copy(src, dst)
+
+    #---------------------------------------------------------------------------
+
+    create_app_7z()
+    create_app_nihonshu()
+
+#-------------------------------------------------------------------------------
+
 build_zlib()
 build_gsm()
 build_xz()
