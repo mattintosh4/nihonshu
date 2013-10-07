@@ -1,5 +1,5 @@
-on main(input)
-    do shell script "WINEDEBUG=-all /usr/local/wine/bin/wine 7zFM.exe " & input & " &>/dev/null &"
+on main(argv)
+    do shell script "WINEDEBUG=-all /usr/local/wine/bin/wine 7zFM.exe " & argv & " &>/dev/null &"
 end main
 
 on run
