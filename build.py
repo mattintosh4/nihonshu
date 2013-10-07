@@ -75,7 +75,6 @@ import build_preset as my
 my.PREFIX = PREFIX
 my.main()
 
-CCACHE  = my.CCACHE
 GCC     = my.GCC
 GXX     = my.GXX
 CLANG   = my.CLANG

@@ -2,10 +2,8 @@ import os
 import sys
 import subprocess
 
-PREFIX          = None
-
-CCACHE          = '/usr/local/bin/ccache'
-MACPORTS_PREFIX = '/opt/local'
+PREFIX    = None
+MP_PREFIX = '/opt/local'
 
 #-------------------------------------------------------------------------------
 
@@ -19,8 +17,12 @@ def get_stdout(*args):
   return stdout
 
 def mp_cmd(arg):
-  cmd = 'PATH={prefix}/bin type -P {name}'.format(prefix = MACPORTS_PREFIX,
-                                                  name   = arg)
+  cmd = '''
+PATH={prefix}/bin type -P {name}
+'''.format(
+    prefix = MP_PREFIX,
+    name   = arg,
+  )
   f = get_stdout('sh', '-c', cmd)
   return f
 
@@ -60,8 +62,8 @@ GIT        = mp_cmd('git')
 HG         = mp_cmd('hg')
 P7ZIP      = mp_cmd('7z')
 
-AUTOTOOLS_PATH = ':'.join([os.path.join(MACPORTS_PREFIX, 'bin'),
-                           os.path.join(MACPORTS_PREFIX, 'sbin'),
+AUTOTOOLS_PATH = ':'.join([os.path.join(MP_PREFIX, 'bin'),
+                           os.path.join(MP_PREFIX, 'sbin'),
                            '/usr/bin:/bin:/usr/sbin:/sbin'])
 
 def cabextract(*args):
@@ -106,14 +108,15 @@ def set_compiler():
   os.environ['CC']          = GCC
   os.environ['CXX']         = GXX
   os.environ['CXXFLAGS']    = os.getenv('CFLAGS')
-  os.environ['CCACHE_PATH'] = os.path.join(MACPORTS_PREFIX, 'bin')
+  os.environ['CCACHE_PATH'] = os.path.join(MP_PREFIX, 'bin')
 
 #-------------------------------------------------------------------------------
 
 def set_env():
   os.environ['PATH'] = ''
-  env_append('PATH', os.path.join(PREFIX, 'bin'), separator=':')
-  env_append('PATH', '/usr/bin:/bin:/usr/sbin:/sbin', separator=':')
+  env_append('PATH', os.path.join(MP_PREFIX, 'libexec/ccache'), separator = ':')
+  env_append('PATH', os.path.join(PREFIX, 'bin'), separator = ':')
+  env_append('PATH', '/usr/bin:/bin:/usr/sbin:/sbin', separator = ':')
 
   os.environ['SHELL']           = '/bin/bash'
   os.environ['TERM']            = 'xterm'
@@ -139,8 +142,8 @@ def set_env():
   os.environ['YASM']            = mp_cmd('yasm')
 
   os.environ['ACLOCAL_PATH'] = ''
-  env_append('ACLOCAL_PATH', os.path.join(PREFIX,          'share', 'aclocal'), separator=':')
-  env_append('ACLOCAL_PATH', os.path.join(MACPORTS_PREFIX, 'share', 'aclocal'), separator=':')
+  env_append('ACLOCAL_PATH', os.path.join(PREFIX,    'share', 'aclocal'), separator=':')
+  env_append('ACLOCAL_PATH', os.path.join(MP_PREFIX, 'share', 'aclocal'), separator=':')
 
   os.environ['PKG_CONFIG_LIBDIR'] = ''
   env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'lib',   'pkgconfig'), separator=':')
@@ -153,16 +156,6 @@ def set_symlink():
   bindir = os.path.join(PREFIX, 'bin')
   os.path.exists(bindir) or os.makedirs(bindir)
   
-  for f in [
-    GCC,
-    GXX,
-    CLANG,
-    CLANGXX,
-  ]:
-    src = CCACHE
-    dst = os.path.join(bindir, f)
-    os.symlink(src, dst)
-
   for f in [
     GIT,
   ]:
