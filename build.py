@@ -569,16 +569,17 @@ def build_libusb():
     build_libusb_core()
     build_libusb_compat()
 # ----------------------------------------------------------------------------- libtiff
-def build_libtiff():
-    name = "libtiff"
+def build_libtiff(name = 'libtiff'):
     message(name)
     if not binCheck(name):
         reposcopy(name)
+        git_checkout(branch = 'branch-3-9')
         configure(
-            "--disable-silent-rules",
-            "--disable-jbig",
-            "--without-x")
-        make_install(archive=name)
+            '--disable-jbig',
+            '--disable-silent-rules',
+            '--without-x',
+        )
+        make_install(archive = name)
 # ----------------------------------------------------------------------------- Little-CMS
 def build_lcms():
     name = "Little-CMS"
