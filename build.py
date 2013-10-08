@@ -844,63 +844,59 @@ def create_distfile():
 
     #---------------------------------------------------------------------------
 
+    create_app = CreateApp()
+
     os.chdir(W_PREFIX)
     create_distfile_clean()
     create_distfile_rebuild_shared_libdir()
     install_core_resources()
-    create_app()
+    create_app.nihonshu()
+    
+    ### no-plugin ##
     create_distfile_core('wine_nihonshu_no-plugin')
+
+    ### plugin ##
     install_plugin()
+    create_app.sevenzip()
     create_distfile_core('wine_nihonshu')
 
 #-------------------------------------------------------------------------------
 
-def create_app():
+class CreateApp():
 
-    def osacompile(src, dst):
-        vsh("""osacompile -x -o {dst} {src}""".format(src = src, dst = dst))
+    def __init__(self):
+        self.srcroot = os.path.join(PROJECT_ROOT, 'app')
+        self.approot = os.path.join(W_PREFIX,     'app')
 
-    def create_app_7z(name = '7zFM.app'):
-        approot    = os.path.join(destroot, '7zFM.app')
+        makedirs(self.approot)
 
-        src_script = os.path.join(srcroot, '7z.applescript')
-        src_icns   = os.path.join(srcroot, '7z.icns')
-        src_plist  = os.path.join(srcroot, '7z.info.plist.in')
-
-        dst_script = approot
-        dst_icns   = os.path.join(approot, 'Contents/Resources/droplet.icns')
-        dst_plist  = os.path.join(approot, 'Contents/Info.plist')
-
+    def install_app(self, name, src):
         message(name)
-        osacompile(src_script, dst_script)
-        installFile(src_icns, dst_icns)
-        installFile(src_plist, dst_plist)
+        vsh("""
+osacompile -x -o {dst} {src}
+""".format(
+        dst = os.path.join(self.approot, name),
+        src = os.path.join(self.srcroot, src),
+    ))
 
-    def create_app_nihonshu(name = 'Nihonshu.app'):
-        approot    = os.path.join(destroot, 'Nihonshu.app')
+    def install_icon(self, name, src, suffix = 'Contents/Resources/droplet.icns'):
+        installFile(os.path.join(self.srcroot, src),
+                    os.path.join(self.approot, name, suffix))
 
-        src_script = os.path.join(srcroot, 'nihonshu.applescript')
-#        src_icns   = os.path.join(srcroot, 'nihonshu.icns') # todo
-        src_plist  = os.path.join(srcroot, 'nihonshu.info.plist.in')
+    def install_plist(self, name, src, suffix = 'Contents/Info.plist'):
+        installFile(os.path.join(self.srcroot, src),
+                    os.path.join(self.approot, name, suffix))
 
-        dst_script = approot
-        dst_icns   = os.path.join(approot, 'Contents/Resources/droplet.icns')
-        dst_plist  = os.path.join(approot, 'Contents/Info.plist')
+    def nihonshu(self, name = 'Nihonshu.app'):
+        self.install_app(  name, 'nihonshu.applescript')
+        self.install_plist(name, 'nihonshu.info.plist.in')
+        # todo
+        os.remove(os.path.join(self.approot, name, 'Contents/Resources/droplet.icns'))
 
-        message(name)
-        osacompile(src_script, dst_script)
-#        installFile(src_icns, dst_icns) # todo
-        rm(dst_icns)
-        installFile(src_plist, dst_plist)
-
-    #---------------------------------------------------------------------------
-
-    srcroot  = os.path.join(PROJECT_ROOT, 'app')
-    destroot = os.path.join(W_PREFIX, 'app')
-
-    makedirs(destroot)
-    create_app_7z()
-    create_app_nihonshu()
+    def sevenzip(self, name = '7zFM.app'):
+        self.install_app(  name, '7z.applescript')
+        self.install_icon( name, '7z.icns')
+        self.install_plist(name, '7z.info.plist.in')
 
 #-------------------------------------------------------------------------------
 
