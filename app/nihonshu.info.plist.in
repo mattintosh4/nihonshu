@@ -12,14 +12,29 @@
 			<key>CFBundleTypeExtensions</key>
 			<array>
 				<string>exe</string>
-				<string>msi</string>
 			</array>
 			<key>CFBundleTypeName</key>
-			<string>archive</string>
+			<string>Windows Executable File</string>
 			<key>CFBundleTypeOSTypes</key>
 			<array>
 				<string>****</string>
 			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>msi</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Microsoft Windows Installer Package</string>
+			<key>CFBundleTypeOSTypes</key>
+			<array>
+				<string>****</string>
+			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
 		</dict>
 		<dict>
 			<key>CFBundleTypeExtensions</key>
