@@ -62,9 +62,12 @@ GIT        = mp_cmd('git')
 HG         = mp_cmd('hg')
 P7ZIP      = mp_cmd('7z')
 
-AUTOTOOLS_PATH = ':'.join([os.path.join(MP_PREFIX, 'bin'),
-                           os.path.join(MP_PREFIX, 'sbin'),
-                           '/usr/bin:/bin:/usr/sbin:/sbin'])
+AUTOTOOLS_PATH = \
+':'.join([
+  os.path.join(MP_PREFIX, 'bin'),
+  os.path.join(MP_PREFIX, 'sbin'),
+  '/usr/bin:/bin:/usr/sbin:/sbin',
+])
 
 def cabextract(*args):
   cmd = [CABEXTRACT]
@@ -113,11 +116,20 @@ def set_compiler():
 #-------------------------------------------------------------------------------
 
 def set_env():
-  if 'PATH' in os.environ: del os.environ['PATH']
-  env_append('PATH', os.path.join(MP_PREFIX, 'libexec/ccache'), separator = ':')
-  env_append('PATH', os.path.join(MP_PREFIX, 'libexec/gnubin'), separator = ':')
-  env_append('PATH', os.path.join(PREFIX, 'bin'),               separator = ':')
-  env_append('PATH', '/usr/bin:/bin:/usr/sbin:/sbin',           separator = ':')
+  os.environ['PATH'] = \
+':'.join("""
+{mp_prefix}/libexec/ccache
+{mp_prefix}/libexec/gnubin
+{mp_prefix}/libexec/git-core
+{prefix}/bin
+/usr/bin
+/bin
+/usr/sbin
+/sbin
+""".format(
+    mp_prefix = MP_PREFIX,
+    prefix    = PREFIX,
+  ).split())
 
   os.environ['SHELL']           = '/bin/bash'
   os.environ['TERM']            = 'xterm'
@@ -142,14 +154,18 @@ def set_env():
   os.environ['NASM']            = mp_cmd('nasm')
   os.environ['YASM']            = mp_cmd('yasm')
 
-  if 'ACLOCAL_PATH' in os.environ: del os.environ['ACLOCAL_PATH']
-  env_append('ACLOCAL_PATH', os.path.join(PREFIX,    'share', 'aclocal'), separator=':')
-  env_append('ACLOCAL_PATH', os.path.join(MP_PREFIX, 'share', 'aclocal'), separator=':')
+  os.environ['ACLOCAL_PATH'] = \
+':'.join("""
+{0}/share/aclocal
+{1}/share/aclocal
+""".format(MP_PREFIX, PREFIX).split())
 
-  if 'PKG_CONFIG_LIBDIR' in os.environ: del os.environ['PKG_CONFIG_LIBDIR']
-  env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'lib',   'pkgconfig'), separator=':')
-  env_append('PKG_CONFIG_LIBDIR', os.path.join(PREFIX, 'share', 'pkgconfig'), separator=':')
-  env_append('PKG_CONFIG_LIBDIR', '/usr/lib/pkgconfig',                       separator=':')
+  os.environ['PKG_CONFIG_LIBDIR'] = \
+':'.join("""
+{0}/lib/pkgconfig
+{0}/share/pkgconfig
+/usr/lib/pkgconfig
+""".format(PREFIX).split())
 
 #-------------------------------------------------------------------------------
 
