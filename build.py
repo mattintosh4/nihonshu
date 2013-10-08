@@ -715,7 +715,11 @@ make install
 
     ### ADD RPATH ###
     src = os.path.join(W_BINDIR, 'wine')
-    vsh("""install_name_tool -add_rpath /opt/X11/lib %s""" % src)
+    vsh("""
+install_name_tool -add_rpath /opt/X11/lib {src}
+""".format(
+        src = src,
+    ))
 
     ### RENAME EXECUTABLE ###
     src = os.path.join(W_BINDIR,     'wine')
@@ -725,7 +729,7 @@ make install
     ### INSTALL WINE LOADER ###
     src = os.path.join(PROJECT_ROOT, 'wineloader.py')
     dst = os.path.join(W_BINDIR,     'wine')
-    shutil.copy(src, dst)
+    installFile(src, dst)
     os.chmod(dst, 0755)
 
     installDoc(
@@ -771,7 +775,7 @@ def build_winetricks():
         ### INSTALL WINETRICKS LOADER ###
         src = os.path.join(PROJECT_ROOT, 'winetricksloader.py')
         dst = os.path.join(W_BINDIR,     'winetricks')
-        shutil.copy(src, dst)
+        installFile(src, dst)
         os.chmod(dst, 0755)
 
         installDoc(
