@@ -149,7 +149,6 @@ def configure(*args):
     _args.extend(args)
 
     vsh("""
-readlink(){{ /opt/local/bin/greadlink "$@"; }}; export -f readlink
 ./configure --prefix={prefix} --build={triple} {args}
 """.format(
         prefix = PREFIX,
@@ -158,19 +157,18 @@ readlink(){{ /opt/local/bin/greadlink "$@"; }}; export -f readlink
     ))
 
 
-def make_install(check=False, archive=False, parallel=True):
+def make_install(
+    make       = 'make',
+    make_check = ':',
+    archive    = False,
+    check      = False,
+    parallel   = True,
+):
     if parallel:
-        make = "make --jobs=" + ncpu
-    else:
-        make = "make"
-
+        make = 'make -j {ncpu}'.format(ncpu = ncpu)
     if check:
-        make_check = "make check"
-    else:
-        make_check = ":"
-
+        make_check = 'make check'
     vsh("""
-readlink(){{ /opt/local/bin/greadlink "$@"; }}; export -f readlink
 {make}
 {make_check}
 make install
