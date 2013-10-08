@@ -794,6 +794,7 @@ def build_xz(name = 'xz'):
     )
     make_install(archive = name)
 # ----------------------------------------------------------------------------- zlib
+
 def build_zlib(name = 'zlib'):
     message(name)
     if binCheck(name): return
@@ -801,94 +802,103 @@ def build_zlib(name = 'zlib'):
     git_checkout()
     vsh("""./configure --prefix={prefix}""".format(prefix = PREFIX))
     make_install(archive = name)
-# ============================================================================ #
-def finalize():
-    os.chdir(W_PREFIX)
-
-    create_app()
-
-    for root, dirs, files in os.walk(W_LIBDIR):
-        if root == os.path.join(W_LIBDIR, 'wine'): continue
-
-        if root == W_LIBDIR:
-            for d in dirs:
-                d = os.path.join(root, d)
-                if d.endswith((
-                    'gio',
-                    'glib-2.0',
-                    'libffi-3.0.13',
-                    'pkgconfig',
-                )):
-                    if os.path.exists(d):
-                        rm(d)
-
-        for f in files:
-            f = os.path.join(root, f)
-            if f.endswith((
-                '.a',
-                '.la',
-                '.alias',
-            )):
-                if os.path.exists(f):
-                    rm(f)
-
-    rm(os.path.join(W_DATADIR, 'applications'))
-
-    ### REBUILD SHARED SUPPORT DIR ###
-    rm(prefix)
-    makedirs(prefix)
-    os.symlink('../lib', LIBDIR)
-
-    def create_distfile(distname):
-#        vsh("""
-#tar cf - -C {workdir} {name} | /opt/local/bin/xz > {workdir}/{distname}.tar.xz
-#""".format(
-#        workdir  = os.path.dirname(W_PREFIX),
-#        name     = os.path.basename(W_PREFIX),
-#        distname = distname,
-#    ))
-        src = W_PREFIX
-        dst = os.path.dirname(W_PREFIX)
-        dst = os.path.join(dst, distname + '.exe')
-        p7zip('a', '-sfx', dst, src)
-
-    install_core_resources()
-    create_distfile('wine_nihonshu_no-plugin')
-    install_plugin()
-    create_distfile('wine_nihonshu')
 
 #-------------------------------------------------------------------------------
 
-def create_app(srcroot = os.path.join(PROJECT_ROOT, 'app')):
+def create_distfile():
 
-    def create_app_7z(destroot = os.path.join(W_PREFIX, '7zFM.app')):
-        src = os.path.join(srcroot, '7z.applescript')
-        cmd = ['osacompile', '-x', '-o', destroot, src]
-        check_call(cmd)
+    def create_distfile_core(distname):
+        src = W_PREFIX
+        dst = os.path.join(os.path.dirname(W_PREFIX), distname + '.exe')
+        p7zip('a', '-sfx', '-mx=9', dst, src)
 
-        src = os.path.join(srcroot, '7z.icns')
-        dst = os.path.join(destroot, 'Contents/Resources/droplet.icns')
-        shutil.copy(src, dst)
+    def create_distfile_rebuild_shared_libdir():
+        rm(prefix)
+        makedirs(prefix)
+        os.symlink('../lib', LIBDIR)
 
-        src = os.path.join(srcroot, '7z.info.plist.in')
-        dst = os.path.join(destroot, 'Contents/Info.plist')
-        shutil.copy(src, dst)
-
-    def create_app_nihonshu(destroot = os.path.join(W_PREFIX, 'Nihonshu.app')):
-        src = os.path.join(srcroot, 'nihonshu.applescript')
-        cmd = ['osacompile', '-x', '-o', destroot, src]
-
-#        src = os.path.join(srcroot, 'nihonshu.icns')
-        dst = os.path.join(destroot, 'Contents/Resources/droplet.icns')
-#        shutil.copy(src, dst)
-        os.remove(dst)
-
-        src = os.path.join(srcroot, 'nihonshu.info.plist.in')
-        dst = os.path.join(destroot, 'Contents/Info.plist')
-        shutil.copy(src, dst)
+    def create_distfile_clean():
+        rm(os.path.join(W_DATADIR, 'applications'))
+        for root, dirs, files in os.walk(W_LIBDIR):
+            if root == os.path.join(W_LIBDIR, 'wine'): continue
+            if root == W_LIBDIR:
+                for d in dirs:
+                    d = os.path.join(root, d)
+                    if d.endswith((
+                        'gio',
+                        'glib-2.0',
+                        'libffi-3.0.13',
+                        'pkgconfig',
+                    )):
+                        if os.path.exists(d):
+                            rm(d)
+            for f in files:
+                f = os.path.join(root, f)
+                if f.endswith((
+                    '.a',
+                    '.la',
+                    '.alias',
+                )):
+                    if os.path.exists(f):
+                        rm(f)
 
     #---------------------------------------------------------------------------
 
+    os.chdir(W_PREFIX)
+    create_distfile_clean()
+    create_distfile_rebuild_shared_libdir()
+    install_core_resources()
+    create_app()
+    create_distfile_core('wine_nihonshu_no-plugin')
+    install_plugin()
+    create_distfile_core('wine_nihonshu')
+
+#-------------------------------------------------------------------------------
+
+def create_app():
+
+    def osacompile(src, dst):
+        vsh("""osacompile -x -o {dst} {src}""".format(src = src, dst = dst))
+
+    def create_app_7z(name = '7zFM.app'):
+        approot    = os.path.join(destroot, '7zFM.app')
+
+        src_script = os.path.join(srcroot, '7z.applescript')
+        src_icns   = os.path.join(srcroot, '7z.icns')
+        src_plist  = os.path.join(srcroot, '7z.info.plist.in')
+
+        dst_script = approot
+        dst_icns   = os.path.join(approot, 'Contents/Resources/droplet.icns')
+        dst_plist  = os.path.join(approot, 'Contents/Info.plist')
+
+        message(name)
+        osacompile(src_script, dst_script)
+        installFile(src_icns, dst_icns)
+        installFile(src_plist, dst_plist)
+
+    def create_app_nihonshu(name = 'Nihonshu.app'):
+        approot    = os.path.join(destroot, 'Nihonshu.app')
+
+        src_script = os.path.join(srcroot, 'nihonshu.applescript')
+#        src_icns   = os.path.join(srcroot, 'nihonshu.icns') # todo
+        src_plist  = os.path.join(srcroot, 'nihonshu.info.plist.in')
+
+        dst_script = approot
+        dst_icns   = os.path.join(approot, 'Contents/Resources/droplet.icns')
+        dst_plist  = os.path.join(approot, 'Contents/Info.plist')
+
+        message(name)
+        osacompile(src_script, dst_script)
+#        installFile(src_icns, dst_icns) # todo
+        rm(dst_icns)
+        installFile(src_plist, dst_plist)
+
+    #---------------------------------------------------------------------------
+
+    srcroot  = os.path.join(PROJECT_ROOT, 'app')
+    destroot = os.path.join(W_PREFIX, 'app')
+
+    makedirs(destroot)
     create_app_7z()
     create_app_nihonshu()
 
@@ -920,6 +930,6 @@ build_mpg123()
 build_wine()
 build_winetricks()
 
-finalize()
+create_distfile()
 
 print >> sys.stderr, 'done.'
