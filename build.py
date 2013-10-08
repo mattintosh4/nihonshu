@@ -692,26 +692,20 @@ def build_wine(name = 'wine'):
     vsh("""patch -Np1 < %s""" % os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'))
 
     ### CONFIGURE / MAKE ###
-    vsh("""
-./configure \
---prefix={prefix} \
---build={triple} \
---without-capi \
---without-oss \
---without-v4l \
---with-x \
---x-inc=/opt/X11/include \
---x-lib=/opt/X11/lib \
-CC="{cc}" CXX="{cxx}"
-make -j {jobs}
-make install
-""".format(
-        prefix  = W_PREFIX,
-        triple  = triple,
-        cc      = CLANG,
-        cxx     = CLANGXX,
-        jobs    = ncpu,
-    ))
+    configure(
+        '--without-capi',
+        '--without-oss',
+        '--without-v4l',
+        '--with-x',
+        '--x-inc=/opt/X11/include',
+        '--x-lib=/opt/X11/lib',
+        'CC='  + CLANG,
+        'CXX=' + CLANGXX,
+        'CFLAGS="'   + '-arch i386 ' + os.getenv('CFLAGS')   + '"',
+        'CXXFLAGS="' + '-arch i386 ' + os.getenv('CXXFLAGS') + '"',
+        prefix = W_PREFIX,
+    )
+    make_install()
 
     ### ADD RPATH ###
     src = os.path.join(W_BINDIR, 'wine')
