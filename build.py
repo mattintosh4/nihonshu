@@ -33,7 +33,7 @@ SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
 
 prefix          = "/usr/local/wine/SharedSupport"
 PREFIX          = prefix
-BUILDROOT       = os.path.join(PREFIX, 'build')
+BUILDROOT       = os.path.join(os.path.expandvars('$TMPDIR'), 'build', 'wine')
 
 BINDIR          = os.path.join(PREFIX, 'bin')
 SBINDIR         = os.path.join(PREFIX, 'sbin')
@@ -50,8 +50,9 @@ W_INCDIR        = os.path.join(W_PREFIX,  'include')
 W_LIBDIR        = os.path.join(W_PREFIX,  'lib')
 W_LIBEXECDIR    = os.path.join(W_PREFIX,  'libexec')
 
+not os.path.exists(BUILDROOT) or rm(BUILDROOT)
+not os.path.exists(W_PREFIX) or rm(W_PREFIX)
 
-not os.path.exists(W_PREFIX) or shutil.rmtree(W_PREFIX)
 for f in [
     DEPOSROOT,
     BUILDROOT,
