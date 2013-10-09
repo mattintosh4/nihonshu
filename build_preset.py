@@ -27,7 +27,7 @@ PATH={prefix}/bin type -P {name}
   return f
 
 def env_append(key, value, separator=' '):
-  if key in os.environ:
+  if key in os.environ and os.environ[key]:
     os.environ[key] += separator + value
   else:
     os.environ[key] = value
@@ -56,9 +56,11 @@ GCC     = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
 GXX     = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
 CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
 CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
-GIT     = mp_cmd('git')
-HG      = mp_cmd('hg')
-P7ZIP   = mp_cmd('7z')
+
+CABEXTRACT = mp_cmd('cabextract')
+GIT        = mp_cmd('git')
+HG         = mp_cmd('hg')
+P7ZIP      = mp_cmd('7z')
 
 
 class Autotools(object):
@@ -94,9 +96,15 @@ PATH={path} NOCONFIGURE=1 {args}
     cmd.extend(args)
     self.run(cmd)
 
+  def make(self, *args):
+    cmd = ['make']
+    cmd.extend(args)
+    self.run(cmd)
+  
+
 
 def cabextract(*args):
-  cmd = ['cabextract']
+  cmd = [CABEXTRACT]
   cmd.extend(args)
   subprocess.check_call(cmd)
 
@@ -150,18 +158,15 @@ def set_compiler():
 def set_env():
   os.environ['PATH'] = ':'.join(
 """
-{mp_prefix}/libexec/ccache
-{mp_prefix}/libexec/gnubin
-{mp_prefix}/libexec/git-core
-{prefix}/bin
+{MP_PREFIX}/libexec/ccache
+{MP_PREFIX}/libexec/gnubin
+{MP_PREFIX}/libexec/git-core
+{PREFIX}/bin
 /usr/bin
 /bin
 /usr/sbin
 /sbin
-""".format(
-    mp_prefix = MP_PREFIX,
-    prefix    = PREFIX,
-  ).split())
+""".format(**globals()).split())
 
   os.environ['SHELL']           = '/bin/bash'
   os.environ['TERM']            = 'xterm'
@@ -169,35 +174,25 @@ def set_env():
   os.environ['LANG']            = 'ja_JP.UTF-8'
   os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
 
-#  os.environ['ACLOCAL']         = mp_cmd('aclocal')
-#  os.environ['AUTOCONF']        = mp_cmd('autoconf')
-#  os.environ['AUTOHEADER']      = mp_cmd('autoheader')
-#  os.environ['AUTOM4TE']        = mp_cmd('autom4te')
-#  os.environ['AUTOMAKE']        = mp_cmd('automake')
-#  os.environ['AUTOPOINT']       = mp_cmd('autopoint')
-#  os.environ['INSTALL']         = mp_cmd('ginstall')
-#  os.environ['LIBTOOLIZE']      = mp_cmd('glibtoolize')
-#  os.environ['M4']              = mp_cmd('gm4')
   os.environ['MAKE']            = mp_cmd('gmake')
-  os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
-
   os.environ['FONTFORGE']       = mp_cmd('fontforge')
   os.environ['HELP2MAN']        = mp_cmd('help2man')
   os.environ['NASM']            = mp_cmd('nasm')
   os.environ['YASM']            = mp_cmd('yasm')
 
-  os.environ['ACLOCAL_PATH'] = ':'.join(
-"""
-{0}/share/aclocal
-{1}/share/aclocal
-""".format(MP_PREFIX, PREFIX).split())
-
+  os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
   os.environ['PKG_CONFIG_LIBDIR'] = ':'.join(
 """
-{0}/lib/pkgconfig
-{0}/share/pkgconfig
+{PREFIX}/lib/pkgconfig
+{PREFIX}/share/pkgconfig
 /usr/lib/pkgconfig
-""".format(PREFIX).split())
+""".format(**globals()).split())
+
+  os.environ['ACLOCAL_PATH'] = ':'.join(
+"""
+{MP_PREFIX}/share/aclocal
+{PREFIX}/share/aclocal
+""".format(**globals()).split())
 
 #-------------------------------------------------------------------------------
 
