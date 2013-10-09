@@ -56,6 +56,8 @@ GCC     = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
 GXX     = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
 CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
 CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
+GIT     = mp_cmd('git')
+HG      = mp_cmd('hg')
 P7ZIP   = mp_cmd('7z')
 
 
@@ -93,19 +95,21 @@ PATH={path} NOCONFIGURE=1 {args}
     self.run(cmd)
 
 
-def cabextract(cmd = [mp_cmd('cabextract')], *args):
+def cabextract(*args):
+  cmd = ['cabextract']
   cmd.extend(args)
   subprocess.check_call(cmd)
 
-def git_checkout(cmd = [mp_cmd('git')], branch = 'master'):
-  cmd.extend(['checkout', '-f', branch])
+def git_checkout(branch = 'master'):
+  cmd = [GIT, 'checkout', '-f', branch]
   subprocess.check_call(cmd)
 
-def hg_update(cmd = [mp_cmd('hg')], branch = 'default'):
-  cmd.extend(['update', '-C', branch])
+def hg_update(branch = 'default'):
+  cmd = [HG, 'update', '-C', branch]
   subprocess.check_call(cmd)
 
-def p7zip(cmd = [mp_cmd('7z')], *args):
+def p7zip(*args):
+  cmd = [P7ZIP]
   cmd.extend(args)
   subprocess.check_call(cmd)
 
