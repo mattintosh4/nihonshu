@@ -1,11 +1,10 @@
 import os
 import sys
-from subprocess import *
+import subprocess
 
 PREFIX      = None
 WINE        = None
 PLUGINDIR   = None
-TMPDIR      = os.path.expandvars('$TMPDIR')
 
 #-------------------------------------------------------------------------------
 
@@ -15,10 +14,10 @@ def message(string):
 def wine(*args, **kwargs):
     cmd = [WINE]
     cmd.extend(args)
-    if 'check' in kwargs and kwargs['check'] == False:
-        call(cmd)
+    if 'check' in kwargs and kwargs['check'] is False:
+        subprocess.call(cmd)
     else:
-        check_call(cmd)
+        subprocess.check_call(cmd)
 
 def wine_restart():
     wine('wineboot.exe', '-r')
@@ -26,16 +25,13 @@ def wine_restart():
 def regsvr32(*args):
     wine('regsvr32.exe', *args)
 
-def rundll32(path, section='DefaultInstall'):
-    if not os.path.exists(path):
-        print >> sys.stderr, '%s not found' % path
-        sys.exit(1)
-    wine('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', path)
+def rundll32(inf, section = 'DefaultInstall'):
+    wine('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', inf)
 
 def cabextract(*args):
     cmd = ['cabextract', '-q', '-L']
     cmd.extend(args)
-    check_call(cmd)
+    subprocess.check_call(cmd)
 
 #-------------------------------------------------------------------------------
 
@@ -52,20 +48,20 @@ def load_dx9():
 
     def load_dx9_feb2010():
         ### 2k mode ###
-        message('Installing DirectX 9 (phase 1)')
+        message('Installing DirectX 9 (1/3)')
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/win2k.reg'))
-        wine(src_dx9_feb2010, '/silent', check=False)
+        wine(src_dx9_feb2010, '/silent', check = False)
         wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
         wine_restart()
 
         ### XP mode ###
-        message('Installing DirectX 9 (phase 2)')
-        wine(src_dx9_feb2010, '/silent', check=False)
+        message('Installing DirectX 9 (2/3)')
+        wine(src_dx9_feb2010, '/silent', check = False)
         wine_restart()
 
     def load_dx9_jun2010():
-        message('Installing DirectX 9 (phase 3)')
-        wine(src_dx9_jun2010, '/silent', check=False)
+        message('Installing DirectX 9 (3/3)')
+        wine(src_dx9_jun2010, '/silent', check = False)
         wine_restart()
 
         registerdlls = [
@@ -165,6 +161,7 @@ def load_dx9():
     load_dx9_jun2010()
 
 #-------------------------------------------------------------------------------
+
 def load_vsrun():
 
     def load_vbrun6():
@@ -231,7 +228,7 @@ def main():
     if sys.argv[1] == '--suppress-init': sys.exit()
 
     ### PHASE 3 ###
+    load_7z()
     load_vsrun()
     load_dx9()
-    load_7z()
     if sys.argv[1] == '--force-init': sys.exit()
