@@ -2,10 +2,6 @@ import os
 import sys
 import subprocess
 
-PREFIX      = None
-WINE        = None
-PLUGINDIR   = None
-
 #-------------------------------------------------------------------------------
 
 def message(string):
@@ -216,6 +212,10 @@ def load_vsrun():
     load_vcrun2010()
 
 #-------------------------------------------------------------------------------
+
+PREFIX      = None
+WINE        = None
+PLUGINDIR   = None
 
 def main():
 
