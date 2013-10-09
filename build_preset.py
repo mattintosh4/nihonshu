@@ -52,40 +52,68 @@ xcodebuild -version -sdk macosx%s | sed -n '/^Path: /s///p'
 
 #-------------------------------------------------------------------------------
 
-GCC        = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
-GXX        = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
-CLANG      = os.path.basename(mp_cmd('clang-mp-3.3'))
-CLANGXX    = os.path.basename(mp_cmd('clang++-mp-3.3'))
+GCC     = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
+GXX     = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
+CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
+CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
+P7ZIP   = mp_cmd('7z')
 
-CABEXTRACT = mp_cmd('cabextract')
-GIT        = mp_cmd('git')
-HG         = mp_cmd('hg')
-P7ZIP      = mp_cmd('7z')
 
-AUTOTOOLS_PATH = \
-':'.join([
-  os.path.join(MP_PREFIX, 'bin'),
-  os.path.join(MP_PREFIX, 'sbin'),
-  '/usr/bin:/bin:/usr/sbin:/sbin',
-])
+class Autotools(object):
 
-def cabextract(*args):
-  cmd = [CABEXTRACT]
+  def __init__(self):
+    self.autotools_path =':'.join(
+"""
+{0}/libexec/gnubin
+{0}/bin
+{0}/sbin
+/usr/bin
+/bin
+/usr/sbin
+/sbin
+""".format(MP_PREFIX).split())
+
+  def run(self, args):
+    vsh(
+"""
+PATH={path} NOCONFIGURE=1 {args}
+""".format(
+      path = self.autotools_path,
+      args = ' '.join(args)
+    ))
+
+  def autogen(self, *args):
+    cmd = ['./autogen.sh']
+    cmd.extend(args)
+    self.run(cmd)
+
+  def autoreconf(self, *args):
+    cmd = ['autoreconf', '-v', '-i']
+    cmd.extend(args)
+    self.run(cmd)
+
+
+def cabextract(cmd = [mp_cmd('cabextract')], *args):
   cmd.extend(args)
   subprocess.check_call(cmd)
 
-def git_checkout(branch = 'master'):
-  cmd = [GIT, 'checkout', '-f', branch]
+def git_checkout(cmd = [mp_cmd('git')], branch = 'master'):
+  cmd.extend(['checkout', '-f', branch])
   subprocess.check_call(cmd)
 
-def hg_update(branch = 'default'):
-  cmd = [HG, 'update', '-C', branch]
+def hg_update(cmd = [mp_cmd('hg')], branch = 'default'):
+  cmd.extend(['update', '-C', branch])
   subprocess.check_call(cmd)
 
-def p7zip(*args):
-  cmd = [P7ZIP]
+def p7zip(cmd = [mp_cmd('7z')], *args):
   cmd.extend(args)
   subprocess.check_call(cmd)
+
+def vsh(script):
+  ps = subprocess.Popen(['sh', '-ve'], stdin = subprocess.PIPE)
+  ps.communicate(script)
+  retcode = ps.returncode
+  if retcode != 0: sys.exit(retcode)
 
 #-------------------------------------------------------------------------------
 
@@ -116,8 +144,8 @@ def set_compiler():
 #-------------------------------------------------------------------------------
 
 def set_env():
-  os.environ['PATH'] = \
-':'.join("""
+  os.environ['PATH'] = ':'.join(
+"""
 {mp_prefix}/libexec/ccache
 {mp_prefix}/libexec/gnubin
 {mp_prefix}/libexec/git-core
@@ -137,15 +165,15 @@ def set_env():
   os.environ['LANG']            = 'ja_JP.UTF-8'
   os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
 
-  os.environ['ACLOCAL']         = mp_cmd('aclocal')
-  os.environ['AUTOCONF']        = mp_cmd('autoconf')
-  os.environ['AUTOHEADER']      = mp_cmd('autoheader')
-  os.environ['AUTOM4TE']        = mp_cmd('autom4te')
-  os.environ['AUTOMAKE']        = mp_cmd('automake')
-  os.environ['AUTOPOINT']       = mp_cmd('autopoint')
-  os.environ['INSTALL']         = mp_cmd('ginstall')
-  os.environ['LIBTOOLIZE']      = mp_cmd('glibtoolize')
-  os.environ['M4']              = mp_cmd('gm4')
+#  os.environ['ACLOCAL']         = mp_cmd('aclocal')
+#  os.environ['AUTOCONF']        = mp_cmd('autoconf')
+#  os.environ['AUTOHEADER']      = mp_cmd('autoheader')
+#  os.environ['AUTOM4TE']        = mp_cmd('autom4te')
+#  os.environ['AUTOMAKE']        = mp_cmd('automake')
+#  os.environ['AUTOPOINT']       = mp_cmd('autopoint')
+#  os.environ['INSTALL']         = mp_cmd('ginstall')
+#  os.environ['LIBTOOLIZE']      = mp_cmd('glibtoolize')
+#  os.environ['M4']              = mp_cmd('gm4')
   os.environ['MAKE']            = mp_cmd('gmake')
   os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
 
@@ -154,14 +182,14 @@ def set_env():
   os.environ['NASM']            = mp_cmd('nasm')
   os.environ['YASM']            = mp_cmd('yasm')
 
-  os.environ['ACLOCAL_PATH'] = \
-':'.join("""
+  os.environ['ACLOCAL_PATH'] = ':'.join(
+"""
 {0}/share/aclocal
 {1}/share/aclocal
 """.format(MP_PREFIX, PREFIX).split())
 
-  os.environ['PKG_CONFIG_LIBDIR'] = \
-':'.join("""
+  os.environ['PKG_CONFIG_LIBDIR'] = ':'.join(
+"""
 {0}/lib/pkgconfig
 {0}/share/pkgconfig
 /usr/lib/pkgconfig
@@ -169,21 +197,7 @@ def set_env():
 
 #-------------------------------------------------------------------------------
 
-def set_symlink():
-  bindir = os.path.join(PREFIX, 'bin')
-  os.path.exists(bindir) or os.makedirs(bindir)
-  
-  for f in [
-    GIT,
-  ]:
-    src = f
-    dst = os.path.join(bindir, os.path.basename(f))
-    os.symlink(src, dst)
-
-#-------------------------------------------------------------------------------
-
 def main():
   set_sdk()
   set_env()
   set_compiler()
-  set_symlink()
