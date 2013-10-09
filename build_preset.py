@@ -2,9 +2,6 @@ import os
 import sys
 import subprocess
 
-PREFIX    = None
-MP_PREFIX = '/opt/local'
-
 #-------------------------------------------------------------------------------
 
 def get_stdout(*args):
@@ -26,42 +23,27 @@ PATH={prefix}/bin type -P {name}
   f = get_stdout('sh', '-c', cmd)
   return f
 
-def env_append(key, value, separator=' '):
-  if key in os.environ and os.environ[key]:
-    os.environ[key] += separator + value
-  else:
-    os.environ[key] = value
-
 #-------------------------------------------------------------------------------
 
 def set_sdk():
-  global dev_dir, osx_ver, sdkroot
+    global dev_dir, osx_ver, sdkroot
 
-  dev_dir = get_stdout('xcode-select', '-print-path')
-  osx_ver = get_stdout('sw_vers', '-productVersion')[0:4]
-  sdkroot = subprocess.Popen(['sh', '-ev'], stdin  = subprocess.PIPE,
-                                            stdout = subprocess.PIPE).communicate("""
-xcodebuild -version -sdk macosx%s | sed -n '/^Path: /s///p'
-""" % osx_ver)[0].strip()
+    dev_dir = get_stdout('xcode-select', '-print-path')
+    osx_ver = get_stdout('sw_vers', '-productVersion')[0:4]
+    sdkroot = subprocess.Popen(['sh', '-ev'],
+                               stdin  = subprocess.PIPE,
+                               stdout = subprocess.PIPE).communicate(
+"""
+xcodebuild -version -sdk macosx{osx_ver} | sed -n '/^Path: /s///p'
+""".format(**globals()))[0].strip()
 
-  os.environ.update({
-    'DEVELOPER_DIR'             : dev_dir,
-    'MACOSX_DEPLOYMENT_TARGET'  : osx_ver,
-    'SDKROOT'                   : sdkroot,
-  })
+    os.environ.update({
+        'DEVELOPER_DIR'           : dev_dir,
+        'MACOSX_DEPLOYMENT_TARGET': osx_ver,
+        'SDKROOT'                 : sdkroot,
+    })
 
 #-------------------------------------------------------------------------------
-
-GCC     = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
-GXX     = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
-CLANG   = os.path.basename(mp_cmd('clang-mp-3.3'))
-CLANGXX = os.path.basename(mp_cmd('clang++-mp-3.3'))
-
-CABEXTRACT = mp_cmd('cabextract')
-GIT        = mp_cmd('git')
-HG         = mp_cmd('hg')
-P7ZIP      = mp_cmd('7z')
-
 
 class Autotools(object):
 
@@ -104,59 +86,59 @@ PATH={path} NOCONFIGURE=1 {args}
 
 
 def cabextract(*args):
-  cmd = [CABEXTRACT]
-  cmd.extend(args)
-  subprocess.check_call(cmd)
+    cmd = [CABEXTRACT]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
 
 def git_checkout(branch = 'master'):
-  cmd = [GIT, 'checkout', '-f', branch]
-  subprocess.check_call(cmd)
+    cmd = [GIT, 'checkout', '-f', branch]
+    subprocess.check_call(cmd)
 
 def hg_update(branch = 'default'):
-  cmd = [HG, 'update', '-C', branch]
-  subprocess.check_call(cmd)
+    cmd = [HG, 'update', '-C', branch]
+    subprocess.check_call(cmd)
 
 def p7zip(*args):
-  cmd = [P7ZIP]
-  cmd.extend(args)
-  subprocess.check_call(cmd)
+    cmd = [P7ZIP]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
 
 def vsh(script):
-  ps = subprocess.Popen(['sh', '-ve'], stdin = subprocess.PIPE)
-  ps.communicate(script)
-  retcode = ps.returncode
-  if retcode != 0: sys.exit(retcode)
+    ps = subprocess.Popen(['sh', '-ve'], stdin = subprocess.PIPE)
+    ps.communicate(script)
+    retcode = ps.returncode
+    if retcode != 0: sys.exit(retcode)
 
 #-------------------------------------------------------------------------------
 
 def set_compiler():
-  
-  global archflags
-  global optflags
-  
-#  archflags = '-m32 -arch i386'
-  optflags  = '-O3 -mtune=generic'
 
-#  env_append('CFLAGS', archflags)
-  env_append('CFLAGS', optflags)
-  env_append('CFLAGS', '-isysroot %s' % sdkroot)
+    def X(strings):
+        return ' '.join(strings.format(**globals()).split())
 
-  env_append('CPPFLAGS', '-I' + os.path.join(PREFIX, 'include'))
-
-  env_append('LDFLAGS', '-Wl,-search_paths_first,-headerpad_max_install_names')
-  env_append('LDFLAGS', '-Wl,-syslibroot,%s' % sdkroot)
-  env_append('LDFLAGS', '-Wl,-arch,i386')
-  env_append('LDFLAGS', '-L' + os.path.join(PREFIX, 'lib'))
-
-  os.environ['CC']          = GCC
-  os.environ['CXX']         = GXX
-  os.environ['CXXFLAGS']    = os.getenv('CFLAGS')
-  os.environ['CCACHE_PATH'] = os.path.join(MP_PREFIX, 'bin')
+    os.environ['CC']          = GCC
+    os.environ['CXX']         = GXX
+    os.environ['CCACHE_PATH'] = os.path.join(MP_PREFIX, 'bin')
+    
+    os.environ['CFLAGS']      = X("""
+                                  -O3 -mtune=generic
+                                  -isysroot {sdkroot}
+                                  """)
+    os.environ['CXXFLAGS']    = os.getenv('CFLAGS')
+    os.environ['CPPFLAGS']    = X("""
+                                  -I{PREFIX}/include
+                                  """)
+    os.environ['LDFLAGS']     = X("""
+                                  -Wl,-headerpad_max_install_names
+                                  -Wl,-syslibroot,{sdkroot}
+                                  -Wl,-arch,i386
+                                  -L{PREFIX}/lib
+                                  """)
 
 #-------------------------------------------------------------------------------
 
 def set_env():
-  os.environ['PATH'] = ':'.join(
+    os.environ['PATH'] = ':'.join(
 """
 {MP_PREFIX}/libexec/ccache
 {MP_PREFIX}/libexec/gnubin
@@ -168,27 +150,27 @@ def set_env():
 /sbin
 """.format(**globals()).split())
 
-  os.environ['SHELL']           = '/bin/bash'
-  os.environ['TERM']            = 'xterm'
-  os.environ['COMMAND_MODE']    = 'unix2003'
-  os.environ['LANG']            = 'ja_JP.UTF-8'
-  os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
+    os.environ['SHELL']           = '/bin/bash'
+    os.environ['TERM']            = 'xterm'
+    os.environ['COMMAND_MODE']    = 'unix2003'
+    os.environ['LANG']            = 'ja_JP.UTF-8'
+    os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
 
-  os.environ['MAKE']            = mp_cmd('gmake')
-  os.environ['FONTFORGE']       = mp_cmd('fontforge')
-  os.environ['HELP2MAN']        = mp_cmd('help2man')
-  os.environ['NASM']            = mp_cmd('nasm')
-  os.environ['YASM']            = mp_cmd('yasm')
+    os.environ['MAKE']            = mp_cmd('gmake')
+    os.environ['FONTFORGE']       = mp_cmd('fontforge')
+    os.environ['HELP2MAN']        = mp_cmd('help2man')
+    os.environ['NASM']            = mp_cmd('nasm')
+    os.environ['YASM']            = mp_cmd('yasm')
 
-  os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
-  os.environ['PKG_CONFIG_LIBDIR'] = ':'.join(
+    os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
+    os.environ['PKG_CONFIG_LIBDIR'] = ':'.join(
 """
 {PREFIX}/lib/pkgconfig
 {PREFIX}/share/pkgconfig
 /usr/lib/pkgconfig
 """.format(**globals()).split())
 
-  os.environ['ACLOCAL_PATH'] = ':'.join(
+    os.environ['ACLOCAL_PATH'] = ':'.join(
 """
 {MP_PREFIX}/share/aclocal
 {PREFIX}/share/aclocal
@@ -196,7 +178,25 @@ def set_env():
 
 #-------------------------------------------------------------------------------
 
+PREFIX      = None
+MP_PREFIX   = '/opt/local'
+
+GCC         = os.path.basename(mp_cmd('i686-apple-darwin10-gcc-apple-4.2.1'))
+GXX         = os.path.basename(mp_cmd('i686-apple-darwin10-g++-apple-4.2.1'))
+CLANG       = os.path.basename(mp_cmd('clang-mp-3.3'))
+CLANGXX     = os.path.basename(mp_cmd('clang++-mp-3.3'))
+
+CABEXTRACT  = mp_cmd('cabextract')
+GIT         = mp_cmd('git')
+HG          = mp_cmd('hg')
+P7ZIP       = mp_cmd('7z')
+
 def main():
-  set_sdk()
-  set_env()
-  set_compiler()
+    set_sdk()
+    set_env()
+    set_compiler()
+
+
+
+
+
