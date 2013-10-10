@@ -195,8 +195,3 @@ def main():
     set_sdk()
     set_env()
     set_compiler()
-
-
-
-
-
