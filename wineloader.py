@@ -35,9 +35,7 @@ def test_wineprefix():
                                  '--force-init']
     if not wineprefix or with_opt:
         import runpy
-        runpy.run_module('init_wine',
-                         init_globals = {'WINE': WINE},
-                         run_name     = '__main__')
+        runpy.run_module('init_wine', init_globals = {'WINE': WINE})
 
 def run(debug = True):
     if debug is True:
