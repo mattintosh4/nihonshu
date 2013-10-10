@@ -414,6 +414,42 @@ def build_gnutls(name = 'gnutls'):
     )
     make_install(archive = name)
 
+# GSM --------------------------------------------------------------------------
+
+def build_gsm(name = 'gsm-1.0.13'):
+    message(name)
+    extract(name, '.tar.gz', 'gsm-1.0-pl13')
+    vsh(
+"""
+make {install_name} \
+CC='{cc} -ansi -pedantic' \
+CCFLAGS='-c {cflags} -DNeedFunctionPrototypes=1' \
+LDFLAGS='{ldflags}' \
+LIBGSM='{install_name}' \
+AR='{cc}' \
+ARFLAGS='-dynamiclib -fPIC -v -arch i386 -install_name $(LIBGSM) -compatibility_version 1 -current_version 1.0.3 -o' \
+RANLIB=':' \
+RMFLAGS='-f'
+
+install -m 0644 inc/gsm.h {prefix}/include
+""".format(
+        prefix       = PREFIX,
+        cc           = os.getenv('CC'),
+        cflags       = os.getenv('CFLAGS'),
+        ldflags      = os.getenv('LDFLAGS'),
+        install_name = os.path.join(LIBDIR, 'libgsm.dylib'),
+    ))
+
+# LIBFFI -----------------------------------------------------------------------
+
+def build_libffi(name = 'libffi'):
+    message(name)
+    if binCheck(name): return
+    reposcopy(name)
+    git_checkout('v3.0.13')
+    configure()
+    make_install(archive = name)
+
 # LIBGPHOTO2 -------------------------------------------------------------------
 
 def build_libexif(name = 'libexif-0.6.21'):
@@ -467,42 +503,6 @@ def build_libgphoto2(name = 'libgphoto2'):
         '--with-drivers=all',
         'CFLAGS="{cflags} -D_DARWIN_C_SOURCE"'.format(cflags = os.getenv('CFLAGS')),
     )
-    make_install(archive = name)
-
-# GSM --------------------------------------------------------------------------
-
-def build_gsm(name = 'gsm-1.0.13'):
-    message(name)
-    extract(name, '.tar.gz', 'gsm-1.0-pl13')
-    vsh(
-"""
-make {install_name} \
-CC='{cc} -ansi -pedantic' \
-CCFLAGS='-c {cflags} -DNeedFunctionPrototypes=1' \
-LDFLAGS='{ldflags}' \
-LIBGSM='{install_name}' \
-AR='{cc}' \
-ARFLAGS='-dynamiclib -fPIC -v -arch i386 -install_name $(LIBGSM) -compatibility_version 1 -current_version 1.0.3 -o' \
-RANLIB=':' \
-RMFLAGS='-f'
-
-install -m 0644 inc/gsm.h {prefix}/include
-""".format(
-        prefix       = PREFIX,
-        cc           = os.getenv('CC'),
-        cflags       = os.getenv('CFLAGS'),
-        ldflags      = os.getenv('LDFLAGS'),
-        install_name = os.path.join(LIBDIR, 'libgsm.dylib'),
-    ))
-
-# LIBFFI -----------------------------------------------------------------------
-
-def build_libffi(name = 'libffi'):
-    message(name)
-    if binCheck(name): return
-    reposcopy(name)
-    git_checkout()
-    configure()
     make_install(archive = name)
 
 # LIBJPEG-TURBO ----------------------------------------------------------------
