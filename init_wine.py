@@ -51,11 +51,6 @@ def message(string, mode = 0):
     print >> sys.stderr, '\033[1;m' + string + '\033[m'
 
 
-def cabextract(*args):
-    cmd = ['cabextract', '-q', '-L']
-    cmd.extend(args)
-    subprocess.check_call(cmd)
-
 def fileCheck(*args):
     for f in args:
         if not os.path.exists(f): return False
@@ -75,6 +70,8 @@ def load_7z():
     if not fileCheck(inf): return
     message('Registration files for 7-Zip', 1)
     wine.rundll32(inf)
+
+#-------------------------------------------------------------------------------
 
 def load_dx9():
 
