@@ -799,6 +799,7 @@ def create_distfile():
                 for d in dirs:
                     d = os.path.join(root, d)
                     if d.endswith((
+                        'gettext',
                         'gio',
                         'glib-2.0',
                         'libffi-3.0.13',
