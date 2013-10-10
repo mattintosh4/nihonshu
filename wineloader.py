@@ -17,35 +17,43 @@
 #
 # You should have received a copy of the GNU General Public License
 #
+
+LANG      = 'ja_JP.UTF-8'
+WINEDEBUG = '' #+ '+loaddll'
+
+# /!\ DO NOT EDIT BELOW THIS LINE ----------------------------------------------
+
 import os
 import sys
 
-PREFIX      = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-WINE        = os.path.join(PREFIX, "libexec/wine")
-WINEDEBUG   = "" #+ "+loaddll"
+def test_wineprefix():
+    wineprefix = os.environ.get('WINEPREFIX', os.path.expanduser('~/.wine'))
+    wineprefix = os.path.join(wineprefix, 'drive_c')
+    wineprefix = os.path.exists(wineprefix)
+    with_opt   = sys.argv[1] in ['--skip-init',
+                                 '--suppress-init',
+                                 '--force-init']
+    if not wineprefix or with_opt:
+        import runpy
+        runpy.run_module('init_wine',
+                         init_globals = {'WINE': WINE},
+                         run_name     = '__main__')
 
-
-if len(sys.argv) < 2 or sys.argv[1] in ["--help", "--version"]:
+def run(debug = True):
+    if debug is True:
+        print >> sys.stderr, '\033[4;32m%s\033[m' % ' '.join(sys.argv[1:])
     os.execv(WINE, sys.argv)
 
+def set_env():
+    os.environ.setdefault('LANG',      LANG)
+    os.environ.setdefault('WINEDEBUG', WINEDEBUG)
 
-os.environ.setdefault("LANG", "ja_JP.UTF-8")
-os.environ.setdefault("WINEDEBUG", WINEDEBUG)
+def main():
+    if len(sys.argv) < 2 or sys.argv[1] in ['--help', '--version']: run(False)
+    set_env()
+    test_wineprefix()
+    run()
 
-
-wineprefix  = os.environ.get("WINEPREFIX", os.path.expanduser("~/.wine"))
-wineprefix  = os.path.join(wineprefix, "drive_c")
-wineprefix  = os.path.exists(wineprefix)
-with_opt    = sys.argv[1] in ["--skip-init", "--suppress-init", "--force-init"]
-if not wineprefix or with_opt:
-    import init_wine
-    init_wine.PREFIX    = PREFIX
-    init_wine.WINE      = WINE
-    init_wine.PLUGINDIR = os.path.join(PREFIX, "share/wine/plugin")
-    init_wine.main()
-
-
-print >> sys.stderr, "\033[4;32m" + " ".join(sys.argv[1:]) + "\033[m"
-
-
-os.execv(WINE, sys.argv)
+if __name__ == '__main__':
+    WINE = os.path.join(os.path.abspath(__file__), '../../libexec/wine')
+    main()

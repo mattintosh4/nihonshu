@@ -4,61 +4,98 @@ import subprocess
 
 #-------------------------------------------------------------------------------
 
-def message(string):
-    print >> sys.stderr, '\033[33m*** %s ***\033[m' % string
+class Wine:
 
-def wine(*args, **kwargs):
-    cmd = [WINE]
-    cmd.extend(args)
-    if 'check' in kwargs and kwargs['check'] is False:
-        subprocess.call(cmd)
-    else:
-        subprocess.check_call(cmd)
+    def __init__(self):
+        _prefix = os.path.join(WINE, '../..')
+        _prefix = os.path.normpath(_prefix)
+        self.plugindir = os.path.join(_prefix, 'share/wine/plugin')
+        self.run('wineboot.exe', '-i')
 
-def wine_restart():
-    wine('wineboot.exe', '-r')
+    def run(self, *args, **kwargs):
+        cmd = [WINE]
+        cmd.extend(args)
 
-def regsvr32(*args):
-    wine('regsvr32.exe', *args)
+        message(' '.join(cmd[1:]))
 
-def rundll32(inf, section = 'DefaultInstall'):
-    wine('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', inf)
+        if 'check' in kwargs and kwargs['check'] is False:
+            subprocess.call(cmd)
+        else:
+            subprocess.check_call(cmd)
+
+    def get_plugin_path(self, path):
+        return os.path.join(self.plugindir, path)
+
+    def regedit(self, path):
+        self.run('regedit.exe', path)
+
+    def regsvr32(self, *args):
+        self.run('regsvr32.exe', *args)
+
+    def rundll32(self, path, section = 'DefaultInstall'):
+        self.run('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', path)
+
+    def restart(self):
+        self.run('wineboot.exe', '-r')
+
+    def ver_win2k(self):
+        self.regedit(wine.get_plugin_path('inf/win2k.reg'))
+
+    def ver_winxp(self):
+        self.regedit(wine.get_plugin_path('inf/winxp.reg'))
+
+
+def message(string, mode = 0):
+    if mode == 1:
+        string = '\n*** %s ***\n' % string
+    print >> sys.stderr, '\033[1;m' + string + '\033[m'
+
 
 def cabextract(*args):
     cmd = ['cabextract', '-q', '-L']
     cmd.extend(args)
     subprocess.check_call(cmd)
 
+def fileCheck(*args):
+    for f in args:
+        if not os.path.exists(f): return False
+    return True
+
+#-------------------------------------------------------------------------------
+
+def load_osx_inf():
+    inf = wine.get_plugin_path('inf/osx-wine.inf')
+    message('Registration files for Japanese', 1)
+    wine.rundll32(inf)
+
 #-------------------------------------------------------------------------------
 
 def load_7z():
-    inf = os.path.join(PLUGINDIR, 'inf/7z.inf')
-    if not os.path.exists(inf): return
-    rundll32(inf)
-
-def load_osx_inf():
-    inf = os.path.join(PLUGINDIR, 'inf/osx-wine.inf')
-    rundll32(inf)
+    inf = wine.get_plugin_path('inf/7z.inf')
+    if not fileCheck(inf): return
+    message('Registration files for 7-Zip', 1)
+    wine.rundll32(inf)
 
 def load_dx9():
 
     def load_dx9_feb2010():
         ### 2k mode ###
-        message('Installing DirectX 9 (1/3)')
-        wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/win2k.reg'))
-        wine(src_dx9_feb2010, '/silent', check = False)
-        wine('regedit.exe', os.path.join(PLUGINDIR, 'inf/winxp.reg'))
-        wine_restart()
+        message('Install DirectX 9 (1/3)', 1)
+        wine.rundll32(inf)
+        wine.ver_win2k()
+        wine.run(src_dx9_feb2010, '/silent', check = False)
+        wine.ver_winxp()
+        wine.restart()
 
         ### XP mode ###
-        message('Installing DirectX 9 (2/3)')
-        wine(src_dx9_feb2010, '/silent', check = False)
-        wine_restart()
+        message('Install DirectX 9 (2/3)', 1)
+        wine.run(src_dx9_feb2010, '/silent', check = False)
+        wine.restart()
 
     def load_dx9_jun2010():
-        message('Installing DirectX 9 (3/3)')
-        wine(src_dx9_jun2010, '/silent', check = False)
-        wine_restart()
+        message('Install DirectX 9 (3/3)', 1)
+        wine.run(src_dx9_jun2010, '/silent', check = False)
+        wine.restart()
 
         registerdlls = [
             'amstream.dll'      ,
@@ -137,22 +174,20 @@ def load_dx9():
             'xaudio2_6.dll'     ,
             'xaudio2_7.dll'     ,
         ]
-        regsvr32(*registerdlls)
+        wine.regsvr32(*registerdlls)
 
     #---------------------------------------------------------------------------
 
-    inf             = os.path.join(PLUGINDIR, 'inf/dxredist.inf')
-    src_dx9_feb2010 = os.path.join(PLUGINDIR, 'directx9/feb2010/dxsetup.exe')
-    src_dx9_jun2010 = os.path.join(PLUGINDIR, 'directx9/jun2010/dxsetup.exe')
+    inf             = wine.get_plugin_path('inf/dxredist.inf')
+    src_dx9_feb2010 = wine.get_plugin_path('directx9/feb2010/dxsetup.exe')
+    src_dx9_jun2010 = wine.get_plugin_path('directx9/jun2010/dxsetup.exe')
 
-    for f in [
+    if not fileCheck(
         inf,
         src_dx9_feb2010,
         src_dx9_jun2010,
-    ]:
-        if not os.path.exists(f): return
+    ): return
 
-    rundll32(inf)
     load_dx9_feb2010()
     load_dx9_jun2010()
 
@@ -161,50 +196,49 @@ def load_dx9():
 def load_vsrun():
 
     def load_vbrun6():
-        message('Installing Visual Basic 6.0')
-        wine(src_vbrun6, '/Q', check = False)
-        wine_restart()
+        message('Install VB 6.0 runtime', 1)
+        wine.rundll32(inf)
+        wine.run(src_vbrun6, '/Q', check = False)
+        wine.restart()
 
     def load_vcrun6():
-        message('Installing Visual C++ 6.0')
-        wine(src_vcrun6, '/Q', check = False)
-        wine_restart()
+        message('Install VC 6.0 runtime', 1)
+        wine.run(src_vcrun6, '/Q', check = False)
+        wine.restart()
 
     def load_vcrun2005():
-        message('Installing Visual C++ 2005')
-        wine(src_vcrun2005, '/q')
-        wine_restart()
+        message('Install VC 2005 runtime', 1)
+        wine.run(src_vcrun2005, '/q')
+        wine.restart()
 
     def load_vcrun2008():
-        message('Installing Visual C++ 2008 SP 1')
-        wine(src_vcrun2008, '/q')
-        wine_restart()
+        message('Install VC 2008 runtime', 1)
+        wine.run(src_vcrun2008, '/q')
+        wine.restart()
 
     def load_vcrun2010():
-        message('Installing Visual C++ 2010 SP 1')
-        wine(src_vcrun2010, '/q')
-        wine_restart()
+        message('Install VC 2010 runtime', 1)
+        wine.run(src_vcrun2010, '/q')
+        wine.restart()
 
     #---------------------------------------------------------------------------
 
-    inf           = os.path.join(PLUGINDIR, 'inf/vsredist.inf')
-    src_vbrun6    = os.path.join(PLUGINDIR, 'vbrun6sp6/vbrun60.exe')
-    src_vcrun6    = os.path.join(PLUGINDIR, 'vcrun6sp6/vcredist.exe')
-    src_vcrun2005 = os.path.join(PLUGINDIR, 'vcrun2005sp1_jun2011/vcredist_x86.exe')
-    src_vcrun2008 = os.path.join(PLUGINDIR, 'vcrun2008sp1_jun2011/vcredist_x86.exe')
-    src_vcrun2010 = os.path.join(PLUGINDIR, 'vcrun2010sp1_aug2011/vcredist_x86.exe')
+    inf           = wine.get_plugin_path('inf/vsredist.inf')
+    src_vbrun6    = wine.get_plugin_path('vbrun6sp6/vbrun60.exe')
+    src_vcrun6    = wine.get_plugin_path('vcrun6sp6/vcredist.exe')
+    src_vcrun2005 = wine.get_plugin_path('vcrun2005sp1_jun2011/vcredist_x86.exe')
+    src_vcrun2008 = wine.get_plugin_path('vcrun2008sp1_jun2011/vcredist_x86.exe')
+    src_vcrun2010 = wine.get_plugin_path('vcrun2010sp1_aug2011/vcredist_x86.exe')
 
-    for f in [
+    if not fileCheck(
         inf,
         src_vbrun6,
         src_vcrun6,
         src_vcrun2005,
         src_vcrun2008,
         src_vcrun2010,
-    ]:
-        if not os.path.exists(f): return
+    ): return
 
-    rundll32(inf)
     load_vbrun6()
     load_vcrun6()
     load_vcrun2005()
@@ -213,22 +247,19 @@ def load_vsrun():
 
 #-------------------------------------------------------------------------------
 
-PREFIX      = None
-WINE        = None
-PLUGINDIR   = None
+if __name__ == '__main__':
 
-def main():
+    wine = Wine()
 
     ### PHASE 1 ###
-    wine('wineboot.exe', '--init')
-    if sys.argv[1] == '--skip-init': sys.exit()
+    if sys.argv[1] == '--skip-init': sys.exit(0)
 
     ### PHASE 2 ###
     load_osx_inf()
-    if sys.argv[1] == '--suppress-init': sys.exit()
+    if sys.argv[1] == '--suppress-init': sys.exit(0)
 
     ### PHASE 3 ###
     load_7z()
     load_vsrun()
     load_dx9()
-    if sys.argv[1] == '--force-init': sys.exit()
+    if sys.argv[1] == '--force-init': sys.exit(0)
