@@ -511,6 +511,7 @@ def build_libjpeg_turbo(name = 'libjpeg-turbo'):
     message(name)
     if binCheck(name): return
     reposcopy(name)
+    git_checkout('1.3.x')
     vsh(
 """
 sed -i '' 's|$(datadir)/doc|&/libjpeg-turbo|' Makefile.am
