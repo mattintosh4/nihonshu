@@ -4,13 +4,10 @@ import subprocess
 
 #-------------------------------------------------------------------------------
 
-class Wine:
+class Wine(object):
 
     def __init__(self):
-        _prefix = os.path.join(WINE, '../..')
-        _prefix = os.path.normpath(_prefix)
-        self.plugindir = os.path.join(_prefix, 'share/wine/plugin')
-        self.run('wineboot.exe', '-i')
+        self.plugindir = os.path.normpath(os.path.join(WINE, '../../share/wine/plugin'))
 
     def run(self, *args, **kwargs):
         cmd = [WINE]
@@ -32,11 +29,11 @@ class Wine:
     def regsvr32(self, *args):
         self.run('regsvr32.exe', *args)
 
-    def rundll32(self, path, section = 'DefaultInstall'):
-        self.run('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', path)
-
     def restart(self):
         self.run('wineboot.exe', '-r')
+
+    def rundll32(self, path, section = 'DefaultInstall'):
+        self.run('rundll32.exe', 'setupapi.dll,InstallHinfSection', section, '128', path)
 
     def ver_win2k(self):
         self.regedit(wine.get_plugin_path('inf/win2k.reg'))
@@ -242,21 +239,23 @@ def load_vsrun():
     load_vcrun2008()
     load_vcrun2010()
 
+
+def main(opt):
+    wine.run('wineboot.exe', '-i')
+    while 1:
+        if opt != '--skip-init':
+            load_osx_inf()
+            if opt != '--suppress-init':
+                load_7z()
+                load_vsrun()
+                load_dx9()
+                if opt != '--force-init':
+                    break
+        sys.exit(0)
+
 #-------------------------------------------------------------------------------
 
 if __name__ == 'init_wine':
 
     wine = Wine()
-
-    ### PHASE 1 ###
-    if sys.argv[1] == '--skip-init': sys.exit(0)
-
-    ### PHASE 2 ###
-    load_osx_inf()
-    if sys.argv[1] == '--suppress-init': sys.exit(0)
-
-    ### PHASE 3 ###
-    load_7z()
-    load_vsrun()
-    load_dx9()
-    if sys.argv[1] == '--force-init': sys.exit(0)
+    main(sys.argv[1])
