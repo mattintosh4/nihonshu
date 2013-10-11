@@ -678,6 +678,7 @@ def build_wine(name = 'wine'):
             os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'),
             os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'),
             os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'),
+            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_translate_menu.patch'),
         )
         configure(
             '--without-capi',
