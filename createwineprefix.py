@@ -255,7 +255,7 @@ def main(opt):
 
 #-------------------------------------------------------------------------------
 
-if __name__ == 'init_wine':
+if __name__ == 'createwineprefix':
 
     wine = Wine()
     main(sys.argv[1])

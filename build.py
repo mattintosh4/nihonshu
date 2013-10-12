@@ -226,7 +226,7 @@ def install_core_resources():
                 os.path.join(W_DOCDIR, 'nihonshu', f))
 
     # note: install python module
-    f = 'init_wine.py'
+    f = 'createwineprefix.py'
     installFile(os.path.join(PROJECT_ROOT, f),
                 os.path.join(W_BINDIR, f))
 
