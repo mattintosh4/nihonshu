@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #
-# Nihonshu - Customized Wine binary for OS X (Ja)
+# ___CAPTION___
 #
 # Copyright (C) 2013 mattintosh4, https://github.com/mattintosh4/nihonshu
 #
@@ -38,7 +38,7 @@ def test_wineprefix():
         runpy.run_module('createwineprefix', init_globals = {'WINE': WINE})
 
 def run(debug = True):
-    if debug is True:
+    if debug:
         print >> sys.stderr, '\033[4;32m%s\033[m' % ' '.join(sys.argv[1:])
     os.execv(WINE, sys.argv)
 

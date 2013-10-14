@@ -703,8 +703,14 @@ def build_wine(name = 'wine'):
               os.path.join(W_LIBEXECDIR, 'wine'))
 
     # note: install wine loader
-    installFile(os.path.join(PROJECT_ROOT, 'wineloader.py'),
-                os.path.join(W_BINDIR,     'wine'), 0755)
+    src = os.path.join(PROJECT_ROOT, 'wineloader.py.in')
+    dst = os.path.join(W_BINDIR,     'wine')
+    with open(src, 'r') as i:
+        str = i.read()
+        str = str.replace('___CAPTION___', 'Nihonshu - Customized Wine binary for OS X (Ja)')
+        with open(dst, 'w') as o:
+            o.write(str)
+            os.chmod(dst, 0755)
 
     installDoc(
         name,
