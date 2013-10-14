@@ -7,6 +7,32 @@ import re
 import sys
 import shutil
 
+
+INSTALL_ROOT    = '/usr/local/wine'
+PROJECT_ROOT    = os.path.dirname(os.path.abspath(__file__))
+
+DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
+SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
+BUILDROOT       = os.path.join(os.path.expandvars('$TMPDIR'), 'build', 'wine')
+
+W_PREFIX        = INSTALL_ROOT
+W_BINDIR        = os.path.join(W_PREFIX,  'bin')
+W_DATADIR       = os.path.join(W_PREFIX,  'share')
+W_DOCDIR        = os.path.join(W_DATADIR, 'doc')
+W_INCDIR        = os.path.join(W_PREFIX,  'include')
+W_LIBDIR        = os.path.join(W_PREFIX,  'lib')
+W_LIBEXECDIR    = os.path.join(W_PREFIX,  'libexec')
+
+PREFIX          = os.path.join(W_PREFIX, 'SharedSupport')
+BINDIR          = os.path.join(PREFIX,   'bin')
+SBINDIR         = os.path.join(PREFIX,   'sbin')
+DATADIR         = os.path.join(PREFIX,   'share')
+DOCDIR          = os.path.join(DATADIR,  'doc')
+INCDIR          = os.path.join(PREFIX,   'include')
+LIBDIR          = os.path.join(PREFIX,   'lib')
+SYSCONFDIR      = os.path.join(PREFIX,   'etc')
+
+
 def message(strings, color = 'green'):
     color = {
         'red'   : 31,
@@ -17,8 +43,9 @@ def message(strings, color = 'green'):
 
 
 def makedirs(path):
-    if not os.path.exists(path): os.makedirs(path)
-    message('created: ' + path)
+    if not os.path.exists(path):
+        os.makedirs(path)
+        message('created: ' + path)
 
 
 def rm(path):
@@ -44,30 +71,7 @@ def installDoc(name, *args):
         installFile(os.path.join(BUILDROOT, name, f),
                     os.path.join(docdir, os.path.basename(f)))
 
-
-PROJECT_ROOT    = os.path.dirname(os.path.abspath(__file__))
-DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
-SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
-
-prefix          = "/usr/local/wine/SharedSupport"
-PREFIX          = prefix
-BUILDROOT       = os.path.join(os.path.expandvars('$TMPDIR'), 'build', 'wine')
-
-BINDIR          = os.path.join(PREFIX,  'bin')
-SBINDIR         = os.path.join(PREFIX,  'sbin')
-DATADIR         = os.path.join(PREFIX,  'share')
-DOCDIR          = os.path.join(DATADIR, 'doc')
-INCDIR          = os.path.join(PREFIX,  'include')
-LIBDIR          = os.path.join(PREFIX,  'lib')
-SYSCONFDIR      = os.path.join(PREFIX,  'etc')
-
-W_PREFIX        = '/usr/local/wine'
-W_BINDIR        = os.path.join(W_PREFIX,  'bin')
-W_DATADIR       = os.path.join(W_PREFIX,  'share')
-W_DOCDIR        = os.path.join(W_DATADIR, 'doc')
-W_INCDIR        = os.path.join(W_PREFIX,  'include')
-W_LIBDIR        = os.path.join(W_PREFIX,  'lib')
-W_LIBEXECDIR    = os.path.join(W_PREFIX,  'libexec')
+#-------------------------------------------------------------------------------
 
 not os.path.exists(BUILDROOT) or rm(BUILDROOT)
 not os.path.exists(W_PREFIX) or rm(W_PREFIX)
@@ -75,23 +79,23 @@ not os.path.exists(W_PREFIX) or rm(W_PREFIX)
 for f in [
     DEPOSROOT,
     BUILDROOT,
-    BINDIR,
-    SBINDIR,
-    DATADIR,
-    DOCDIR,
-    INCDIR,
-    SYSCONFDIR,
 
     W_BINDIR,
     W_DATADIR,
     W_INCDIR,
     W_LIBDIR,
     W_LIBEXECDIR,
+
+    BINDIR,
+    SBINDIR,
+    DATADIR,
+    DOCDIR,
+    INCDIR,
+    SYSCONFDIR,
 ]:
     makedirs(f)
 os.symlink(W_LIBDIR, LIBDIR)
 
-#-------------------------------------------------------------------------------
 
 import build_preset as my
 my.PREFIX = PREFIX
@@ -151,7 +155,7 @@ class BuildCommands(object):
         kwargs.setdefault('parallel',   True)
         kwargs.setdefault('make',       'make -j {0}'.format(ncpu))
         kwargs.setdefault('make_check', 'make check')
-        kwargs.setdefault('make_args',   '')
+        kwargs.setdefault('make_args',  '')
 
         kwargs['parallel'] or kwargs.update(make       = 'make')
         kwargs['check']    or kwargs.update(make_check = ':')
@@ -787,17 +791,6 @@ def build_zlib(name = 'zlib'):
 
 def create_distfile():
 
-    def create_distfile_core(distname):
-        src = W_PREFIX
-        dst = os.path.join(os.path.dirname(W_PREFIX), distname + '.exe')
-        if os.path.exists(dst): rm(dst)
-        p7zip('a', '-sfx', '-mx=9', dst, src)
-
-    def create_distfile_rebuild_shared_libdir():
-        rm(prefix)
-        makedirs(prefix)
-        os.symlink('../lib', LIBDIR)
-
     def create_distfile_clean():
         rm(os.path.join(W_DATADIR, 'applications'))
         for root, dirs, files in os.walk(W_LIBDIR):
@@ -824,16 +817,26 @@ def create_distfile():
                     if os.path.exists(f):
                         rm(f)
 
+    def create_distfile_core(distname):
+        src = W_PREFIX
+        dst = os.path.join(os.path.dirname(W_PREFIX), distname + '.exe')
+        if os.path.exists(dst): rm(dst)
+        p7zip('a', '-sfx', '-mx=9', dst, src)
+
+    def create_distfile_rebuild_shared_libdir():
+        rm(PREFIX)
+        makedirs(PREFIX)
+        os.symlink('../lib', LIBDIR)
+
     #---------------------------------------------------------------------------
 
     create_app = CreateApp()
 
-    os.chdir(W_PREFIX)
+    os.chdir(os.path.dirname(INSTALL_ROOT))
     create_distfile_clean()
     create_distfile_rebuild_shared_libdir()
     install_core_resources()
     create_app.nihonshu()
-    os.chdir(os.path.dirname(os.getcwd()))
 
     ### no-plugin ##
     create_distfile_core('wine_nihonshu_no-plugin')
@@ -850,7 +853,6 @@ class CreateApp():
     def __init__(self):
         self.srcroot = os.path.join(PROJECT_ROOT, 'app')
         self.approot = os.path.join(W_PREFIX,     'app')
-
         makedirs(self.approot)
 
     def install_app(self, name, src):
@@ -884,31 +886,29 @@ osacompile -x -o {dst} {src}
 
 #-------------------------------------------------------------------------------
 
-check_call(['sh', '-c', 'declare'])
-build_zlib()
-build_gsm()
-build_xz()
-build_gettext()
-build_readline()
-build_unixodbc()
-build_gmp()
-build_libffi()
-build_glib()
-build_libusb()
-build_gnutls()
-build_libpng()
-build_freetype()
-build_libjpeg_turbo()
-build_libtiff()
-build_lcms()
-build_libgphoto2()
-build_sane()
-build_SDL()
-build_mpg123()
-
-build_wine()
-build_winetricks()
-
-create_distfile()
-
-message('done')
+if __name__ == '__main__':
+    os.system('declare')
+    build_zlib()
+    build_gsm()
+    build_xz()
+    build_gettext()
+    build_readline()
+    build_unixodbc()
+    build_gmp()
+    build_libffi()
+    build_glib()
+    build_libusb()
+    build_gnutls()
+    build_libpng()
+    build_freetype()
+    build_libjpeg_turbo()
+    build_libtiff()
+    build_lcms()
+    build_libgphoto2()
+    build_sane()
+    build_SDL()
+    build_mpg123()
+    build_wine()
+    build_winetricks()
+    create_distfile()
+    os.system('echo done; afplay /System/Library/Sounds/Hero.aiff')
