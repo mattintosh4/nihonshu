@@ -5,23 +5,23 @@ import subprocess
 #-------------------------------------------------------------------------------
 
 def get_stdout(*args):
-  ps      = subprocess.Popen(args, stdout=subprocess.PIPE)
-  stdout  = ps.communicate()[0].strip()
-  retcode = ps.returncode
-  if retcode != 0:
-    print >> sys.stderr, 'error: %s' % ' '.join(args)
-    sys.exit(retcode)
-  return stdout
+    ps      = subprocess.Popen(args, stdout=subprocess.PIPE)
+    stdout  = ps.communicate()[0].strip()
+    retcode = ps.returncode
+    if retcode != 0:
+        print >> sys.stderr, 'error: %s' % ' '.join(args)
+        sys.exit(retcode)
+    return stdout
+
 
 def mp_cmd(arg):
-  cmd = '''
+    cmd = """
 PATH={prefix}/bin type -P {name}
-'''.format(
-    prefix = MP_PREFIX,
-    name   = arg,
-  )
-  f = get_stdout('sh', '-c', cmd)
-  return f
+""".format(
+        prefix = MP_PREFIX,
+        name   = arg,
+    )
+    return get_stdout('sh', '-c', cmd)
 
 #-------------------------------------------------------------------------------
 
@@ -47,42 +47,41 @@ xcodebuild -version -sdk macosx{osx_ver} | sed -n '/^Path: /s///p'
 
 class Autotools(object):
 
-  def __init__(self):
-    self.autotools_path =':'.join(
+    def __init__(self):
+        self.autotools_path =':'.join(
 """
-{0}/libexec/gnubin
-{0}/bin
-{0}/sbin
+{MP_PREFIX}/libexec/gnubin
+{MP_PREFIX}/bin
+{MP_PREFIX}/sbin
 /usr/bin
 /bin
 /usr/sbin
 /sbin
-""".format(MP_PREFIX).split())
+""".format(**globals()).split())
 
-  def run(self, args):
-    vsh(
+    def run(self, *args):
+        vsh(
 """
 PATH={path} NOCONFIGURE=1 {args}
 """.format(
-      path = self.autotools_path,
-      args = ' '.join(args)
-    ))
+            path = self.autotools_path,
+            args = ' '.join(args)
+        ))
 
-  def autogen(self, *args):
-    cmd = ['./autogen.sh']
-    cmd.extend(args)
-    self.run(cmd)
+    def autogen(self, *args):
+        cmd = ['./autogen.sh']
+        cmd.extend(args)
+        self.run(*cmd)
 
-  def autoreconf(self, *args):
-    cmd = ['autoreconf', '-v', '-i']
-    cmd.extend(args)
-    self.run(cmd)
+    def autoreconf(self, *args):
+        cmd = ['autoreconf', '-v', '-i']
+        cmd.extend(args)
+        self.run(*cmd)
 
-  def make(self, *args):
-    cmd = ['make']
-    cmd.extend(args)
-    self.run(cmd)
-  
+    def make(self, *args):
+        cmd = ['make']
+        cmd.extend(args)
+        self.run(*cmd)
 
 
 def cabextract(*args):
@@ -112,28 +111,16 @@ def vsh(script):
 #-------------------------------------------------------------------------------
 
 def set_compiler():
+    _cflags   = '-pipe -O3 -mtune=generic'.format(**globals())
+    _cppflags = '-isysroot {sdkroot} -I{PREFIX}/include'.format(**globals())
+    _ldflags  = '-Wl,-headerpad_max_install_names,-syslibroot,{sdkroot},-arch,i386 -L{PREFIX}/lib'.format(**globals())
 
-    def X(strings):
-        return ' '.join(strings.format(**globals()).split())
-
-    os.environ['CC']          = GCC
-    os.environ['CXX']         = GXX
-    os.environ['CCACHE_PATH'] = os.path.join(MP_PREFIX, 'bin')
-    
-    os.environ['CFLAGS']      = X("""
-                                  -O3 -mtune=generic
-                                  -isysroot {sdkroot}
-                                  """)
-    os.environ['CXXFLAGS']    = os.getenv('CFLAGS')
-    os.environ['CPPFLAGS']    = X("""
-                                  -I{PREFIX}/include
-                                  """)
-    os.environ['LDFLAGS']     = X("""
-                                  -Wl,-headerpad_max_install_names
-                                  -Wl,-syslibroot,{sdkroot}
-                                  -Wl,-arch,i386
-                                  -L{PREFIX}/lib
-                                  """)
+    os.environ['CC']       = GCC
+    os.environ['CXX']      = GXX
+    os.environ['CFLAGS']   = _cflags
+    os.environ['CXXFLAGS'] = _cflags
+    os.environ['CPPFLAGS'] = _cppflags
+    os.environ['LDFLAGS']  = _ldflags
 
 #-------------------------------------------------------------------------------
 
@@ -156,13 +143,15 @@ def set_env():
     os.environ['LANG']            = 'ja_JP.UTF-8'
     os.environ['gt_cv_locale_ja'] = 'ja_JP.UTF-8'
 
+    os.environ['CCACHE_PATH']     = '{MP_PREFIX}/bin'.format(**globals())
+
     os.environ['MAKE']            = mp_cmd('gmake')
     os.environ['FONTFORGE']       = mp_cmd('fontforge')
     os.environ['HELP2MAN']        = mp_cmd('help2man')
     os.environ['NASM']            = mp_cmd('nasm')
     os.environ['YASM']            = mp_cmd('yasm')
 
-    os.environ['PKG_CONFIG']      = mp_cmd('pkg-config')
+    os.environ['PKG_CONFIG']        = mp_cmd('pkg-config')
     os.environ['PKG_CONFIG_LIBDIR'] = ':'.join(
 """
 {PREFIX}/lib/pkgconfig
@@ -172,8 +161,8 @@ def set_env():
 
     os.environ['ACLOCAL_PATH'] = ':'.join(
 """
-{MP_PREFIX}/share/aclocal
 {PREFIX}/share/aclocal
+{MP_PREFIX}/share/aclocal
 """.format(**globals()).split())
 
 #-------------------------------------------------------------------------------
