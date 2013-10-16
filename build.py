@@ -675,8 +675,9 @@ def build_unixodbc(name = 'unixODBC'):
 
 def build_wine(name = 'wine'):
     message(name)
-    if binCheck(name) is False:
+    if not binCheck(name):
         reposcopy(name)
+#        git_checkout('wine-1.7.4')
         git_checkout()
         for f in os.listdir(PATCHROOT):
             if f.startswith('wine_'):
@@ -700,8 +701,9 @@ def build_wine(name = 'wine'):
     vsh("""install_name_tool -add_rpath /opt/X11/lib {W_BINDIR}/wine""".format(**globals()))
 
     # note: rename executable
-    os.rename(os.path.join(W_BINDIR,     'wine'),
-              os.path.join(W_LIBEXECDIR, 'wine'))
+    src = os.path.join(W_BINDIR,     'wine')
+    dst = os.path.join(W_LIBEXECDIR, 'wine')
+    os.rename(src, dst)
 
     # note: install wine loader
     src = os.path.join(PROJECT_ROOT, 'wineloader.py.in')
