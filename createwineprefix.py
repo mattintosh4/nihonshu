@@ -1,13 +1,25 @@
 import os
-import sys
+import shutil
 import subprocess
+import sys
 
 #-------------------------------------------------------------------------------
 
 class Wine(object):
 
     def __init__(self):
-        self.plugindir = os.path.normpath(os.path.join(WINE, '../../share/wine/plugin'))
+        self.plugindir  = os.path.normpath(os.path.join(WINE, '../../share/wine/plugin'))
+        self.run('wineboot.exe', '-i')
+        self.set_windir()
+
+    def set_windir(self):
+        global W_WINDOWS, W_SYSTEM32, W_TEMP
+
+        W_WINDOWS  = subprocess.Popen([WINE, 'winepath.exe', 'c:\\windows'],
+                                       stdout=subprocess.PIPE,
+                                       stderr=open(os.devnull, 'w')).communicate()[0].strip()
+        W_SYSTEM32 = os.path.join(W_WINDOWS, 'system32')
+        W_TEMP     = os.path.join(W_WINDOWS, 'temp')
 
     def run(self, *args, **kwargs):
         cmd = [WINE]
@@ -52,6 +64,14 @@ def fileCheck(*args):
     for f in args:
         if not os.path.exists(f): return False
     return True
+
+def cabextract(*args):
+    cabextract_cmd = os.path.normpath(os.path.join(WINE, '../../bin/cabextract'))
+    cmd = [cabextract_cmd, '-L']
+    cmd.extend(args)
+    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+    subprocess.Popen(['grep', 'extracting'], stdin=ps.stdout).communicate()[0]
+    ps.stdout.close()
 
 #-------------------------------------------------------------------------------
 
@@ -198,6 +218,8 @@ def load_vsrun():
     def load_vcrun6():
         message('Install VC 6.0 runtime', 1)
         wine.run(src_vcrun6, '/Q', check = False)
+        cabextract('-d', W_SYSTEM32, '-F' 'mfc42u.dll', src_vcrun6)
+        wine.regsvr32('mfc42u.dll')
         wine.restart()
 
     def load_vcrun2005():
@@ -239,9 +261,99 @@ def load_vsrun():
     load_vcrun2008()
     load_vcrun2010()
 
+#-------------------------------------------------------------------------------
+
+def load_xpsp3():
+    xpsp3  = os.path.expanduser('~/.cache/wine/WindowsXP-KB936929-SP3-x86-JPN.exe')
+    w_temp = os.path.join(W_TEMP, 'xpsp3')
+
+    if not os.path.exists(xpsp3): return
+
+    message('Install extra resources', 1)
+
+    items = []
+    items.append(["asms/10/msft/windows/gdiplus/gdiplus.dll", ""])
+#    items.append(["devmgr.dl_",     ""])
+    items.append(["dxmasf.dl_",     "dxmasf.dll"])
+    items.append(["dxtmsft.dl_",    "dxtmsft.dll"])
+    items.append(["dxtrans.dl_",    "dxtrans.dll"])
+    items.append(["glu32.dl_",      ""])
+    items.append(["mciavi32.dl_",   ""])
+    items.append(["mciseq.dl_",     ""])
+    items.append(["mciwave.dl_",    ""])
+    items.append(["mp4sdmod.dl_",   "mp4sdmod.dll"])
+    items.append(["mp43dmod.dl_",   "mp43dmod.dll"])
+    items.append(["mpg4dmod.dl_",   "mpg4dmod.dll"])
+    items.append(["msacm32.dl_",    ""])
+    items.append(["msjet40.dl_",    ""]) # from odbcjt32.dll
+    items.append(["msvfw32.dl_",    ""])
+    items.append(["mswstr10.dl_",   "msjet40.dll"]) # from odbcjt32.dll
+    items.append(["odbc32gt.dl_",   ""])
+    items.append(["odbc32.dl_",     ""])
+    items.append(["odbcad32.ex_",   ""])
+    items.append(["odbcbcp.dl_",    ""])
+    items.append(["odbcconf.dl_",   "odbcconf.dll"])
+    items.append(["odbcconf.ex_",   ""])
+    items.append(["odbccp32.dl_",   ""])
+    items.append(["odbccr32.dl_",   ""])
+    items.append(["odbccu32.dl_",   ""])
+    items.append(["odbcint.dl_",    ""])
+    items.append(["odbcji32.dl_",   ""])
+    items.append(["odbcjt32.dl_",   ""])
+    items.append(["odbcp32r.dl_",   ""])
+    items.append(["odbctrac.dl_",   ""])
+    items.append(["riched20.dl_",   ""])
+    items.append(["shell32.dl_",    ""])
+
+    ## ax
+    items.append(["mpg2data.ax_",   "mpg2data.ax"])
+    items.append(["mpg2splt.ax_",   "mpg2splt.ax"])
+    items.append(["mpg4ds32.ax_",   "mpg4ds32.ax"])
+    items.append(["wmv8ds32.ax_",   "wmv8ds32.ax"])
+    items.append(["wmvds32.ax_",    "wmvds32.ax"])
+
+    ## ocx
+    items.append(["hhctrl.oc_",     "hhctrl.ocx"])
+
+    ## cpl
+#    items.append(["hdwwiz.cp_",     ""])
+    items.append(["joy.cp_",        ""])
+#    items.append(["mmsys.cp_",      ""])
+    items.append(["odbccp32.cp_",   ""])
+    items.append(["timedate.cp_",   ""])
+
+    reg = """[HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]
+"gdiplus"    = "builtin,native"
+"hhctrl.ocx" = "native,builtin"
+"joy.cpl"    = "builtin,native"
+"odbc32"     = "native,builtin"
+"odbccp32"   = "native,builtin"
+"odbccu32"   = "native,builtin"
+"riched20"   = "builtin,native"
+"shell32"    = "builtin,native"
+"""
+    subprocess.Popen([WINE, "regedit.exe", "-"], stdin=subprocess.PIPE).communicate(reg)
+
+    for f in items:
+        f = "i386/" + f[0]
+        cabextract("-d", w_temp, "-F", f, xpsp3)
+        if f.endswith("_"):
+            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, f))
+        else:
+            src = os.path.join(w_temp, f)
+            dst = os.path.join(W_SYSTEM32, os.path.basename(f))
+            if os.path.exists(dst): os.remove(dst)
+            os.rename(src, dst)
+
+    for f in items:
+        f = f[1]
+        if f: wine.regsvr32(f)
+
+    shutil.rmtree(w_temp)
+
+#-------------------------------------------------------------------------------
 
 def main(opt):
-    wine.run('wineboot.exe', '-i')
     while 1:
         if opt != '--skip-init':
             load_osx_inf()
@@ -249,6 +361,7 @@ def main(opt):
                 load_7z()
                 load_vsrun()
                 load_dx9()
+                load_xpsp3()
                 if opt != '--force-init':
                     break
         sys.exit(0)
