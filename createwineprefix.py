@@ -73,6 +73,12 @@ def cabextract(*args):
     subprocess.Popen(['grep', 'extracting'], stdin=ps.stdout).communicate()[0]
     ps.stdout.close()
 
+def winetricks(*args):
+    winetricks_cmd = os.path.normpath(os.path.join(WINE, "../../bin/winetricks"))
+    cmd = [winetricks_cmd]
+    cmd.extend(args)
+    subprocess.check_call(cmd)
+
 #-------------------------------------------------------------------------------
 
 def load_osx_inf():
