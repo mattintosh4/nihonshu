@@ -270,20 +270,15 @@ def load_vsrun():
 #-------------------------------------------------------------------------------
 
 def load_xpsp3():
-    xpsp3  = os.path.expanduser('~/.cache/wine/WindowsXP-KB936929-SP3-x86-JPN.exe')
+
+    xpsp3  = os.path.expanduser('~/.cache/winetricks/xpsp3jp/WindowsXP-KB936929-SP3-x86-JPN.exe')
     w_temp = os.path.join(W_TEMP, 'xpsp3')
-
-    if not os.path.exists(xpsp3): return
-
-    message('Install extra resources', 1)
-
-    items = []
-    items.append(["asms/10/msft/windows/gdiplus/gdiplus.dll", ""])
+    items  = []
+#    items.append(["asms/10/msft/windows/gdiplus/gdiplus.dll", ""])
 #    items.append(["devmgr.dl_",     ""])
     items.append(["dxmasf.dl_",     "dxmasf.dll"])
     items.append(["dxtmsft.dl_",    "dxtmsft.dll"])
     items.append(["dxtrans.dl_",    "dxtrans.dll"])
-    items.append(["glu32.dl_",      ""])
     items.append(["mciavi32.dl_",   ""])
     items.append(["mciseq.dl_",     ""])
     items.append(["mciwave.dl_",    ""])
@@ -328,17 +323,24 @@ def load_xpsp3():
     items.append(["odbccp32.cp_",   ""])
     items.append(["timedate.cp_",   ""])
 
-    reg = """[HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]
-"gdiplus"    = "builtin,native"
+    #---------------------------------------------------------------------------
+
+    message('Install extra resources', 1)
+    winetricks("glu32")
+    subprocess.Popen([WINE, "regedit.exe", "-"],
+                     stdin=subprocess.PIPE).communicate("""\
+[HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]
+;"gdiplus"    = "builtin,native"
 "hhctrl.ocx" = "native,builtin"
 "joy.cpl"    = "builtin,native"
+"msacm32"    = "native,builtin"
+"msvfw32"    = "native,builtin"
 "odbc32"     = "native,builtin"
 "odbccp32"   = "native,builtin"
 "odbccu32"   = "native,builtin"
 "riched20"   = "builtin,native"
 "shell32"    = "builtin,native"
-"""
-    subprocess.Popen([WINE, "regedit.exe", "-"], stdin=subprocess.PIPE).communicate(reg)
+""")
 
     for f in items:
         f = "i386/" + f[0]
