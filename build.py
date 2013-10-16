@@ -13,6 +13,7 @@ PROJECT_ROOT    = os.path.dirname(os.path.abspath(__file__))
 
 DEPOSROOT       = os.path.join(PROJECT_ROOT, 'depos')
 SRCROOT         = os.path.join(PROJECT_ROOT, 'src')
+PATCHROOT       = os.path.join(PROJECT_ROOT, 'osx-wine-patch')
 BUILDROOT       = os.path.join(os.path.expandvars('$TMPDIR'), 'build', 'wine')
 
 W_PREFIX        = INSTALL_ROOT
@@ -677,13 +678,9 @@ def build_wine(name = 'wine'):
     if binCheck(name) is False:
         reposcopy(name)
         git_checkout()
-        patch(
-            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_autohidemenu.patch'),
-            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_changelocale.patch'),
-            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_deviceid.patch'),
-            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_excludefonts.patch'),
-            os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'wine_translate_menu.patch'),
-        )
+        for f in os.listdir(PATCHROOT):
+            if f.startswith('wine_'):
+                patch(os.path.join(PATCHROOT, f))
         configure(
             '--without-capi',
             '--without-oss',
@@ -744,10 +741,9 @@ def build_winetricks(name = 'winetricks'):
 
     message(name)
     reposcopy(name)
-    patch(
-        os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_tkool.patch'),
-        os.path.join(PROJECT_ROOT, 'osx-wine-patch', 'winetricks_helper_xpsp3jp.patch'),
-    )
+    for f in os.listdir(PATCHROOT):
+        if f.startswith('winetricks_'):
+            patch(os.path.join(PATCHROOT, f))
     vsh("""make install PREFIX={W_PREFIX}""".format(**globals()))
 
     ### RENAME EXECUTABLE ###
