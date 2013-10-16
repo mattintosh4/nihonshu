@@ -369,7 +369,7 @@ def main(opt):
                 load_7z()
                 load_vsrun()
                 load_dx9()
-                load_xpsp3()
+#                load_xpsp3() # todo
                 if opt != '--force-init':
                     break
         sys.exit(0)
