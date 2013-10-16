@@ -450,7 +450,7 @@ def build_libffi(name = 'libffi'):
     message(name)
     if binCheck(name): return
     reposcopy(name)
-    git_checkout('v3.0.13')
+    git_checkout()
     configure()
     make_install(archive = name)
 
