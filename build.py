@@ -86,6 +86,7 @@ for f in [
     W_INCDIR,
     W_LIBDIR,
     W_LIBEXECDIR,
+    os.path.join(W_DATADIR, "wine", "plugin", "inf"),
 
     BINDIR,
     SBINDIR,
@@ -232,13 +233,13 @@ def install_core_resources():
 
     # note: install python module
     f = 'createwineprefix.py'
-    installFile(os.path.join(PROJECT_ROOT, f),
-                os.path.join(W_BINDIR, f))
+    os.link(os.path.join(PROJECT_ROOT, f),
+            os.path.join(W_BINDIR, f))
 
     # note: install inf
     f = 'osx-wine.inf'
-    installFile(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
-                os.path.join(W_DATADIR, 'wine/plugin/inf', f))
+    os.link(os.path.join(PROJECT_ROOT, 'osx-wine-inf', f),
+            os.path.join(W_DATADIR, 'wine/plugin/inf', f))
 
 def install_plugin():
 
