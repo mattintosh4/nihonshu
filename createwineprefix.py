@@ -32,12 +32,13 @@ class Wine(object):
         else:
             subprocess.check_call(cmd)
 
-    def dlloverride(self, name, mode):
+    def override(self, name, mode):
+        message("overriding {name} to {mode}".format(**locals().copy()))
         subprocess.Popen([WINE, "regedit.exe", "-"],
                          stdin=subprocess.PIPE).communicate("""\
 [HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides]
 "{name}"="{mode}"
-""".format(**locals()))
+""".format(**locals().copy()))
 
     def get_plugin_path(self, path):
         return os.path.join(self.plugindir, path)
@@ -72,13 +73,14 @@ def fileCheck(*args):
         if not os.path.exists(f): return False
     return True
 
+
 def cabextract(*args):
-    cabextract_cmd = os.path.normpath(os.path.join(WINE, '../../bin/cabextract'))
-    cmd = [cabextract_cmd, '-L']
+    cabextract_cmd = os.path.normpath(os.path.join(WINE, "../../bin/cabextract"))
+    cmd = [cabextract_cmd, "-q", "-L"]
     cmd.extend(args)
-    ps = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-    subprocess.Popen(['grep', 'extracting'], stdin=ps.stdout).communicate()[0]
-    ps.stdout.close()
+    message(" ".join(cmd))
+    subprocess.check_call(cmd)
+
 
 def winetricks(*args):
     winetricks_cmd = os.path.normpath(os.path.join(WINE, "../../bin/winetricks"))
@@ -278,79 +280,75 @@ def load_vsrun():
 
 def load_xpsp3():
 
+    def items_append(aname, rname=False, override=False, mode=False):
+        items.append(locals().copy())
+
+    message('Install extra resources', 1)
     xpsp3  = os.path.expanduser('~/.cache/winetricks/xpsp3jp/WindowsXP-KB936929-SP3-x86-JPN.exe')
     w_temp = os.path.join(W_TEMP, 'xpsp3')
     items  = []
-#    items.append(["asms/10/msft/windows/gdiplus/gdiplus.dll", "", ["gdiplus", "builtin,native"]])
-#    items.append(["devmgr.dl_",     ""])
-    items.append(["dxmasf.dl_",     "dxmasf.dll"])
-    items.append(["dxtmsft.dl_",    "dxtmsft.dll"])
-    items.append(["dxtrans.dl_",    "dxtrans.dll"])
-    items.append(["mciavi32.dl_",   ""])
-    items.append(["mciseq.dl_",     ""])
-    items.append(["mciwave.dl_",    ""])
-    items.append(["mp4sdmod.dl_",   "mp4sdmod.dll"])
-    items.append(["mp43dmod.dl_",   "mp43dmod.dll"])
-    items.append(["mpg4dmod.dl_",   "mpg4dmod.dll"])
-    items.append(["msacm32.dl_",    "",             ["msacm32", "native,builtin"]])
-    items.append(["msjet40.dl_",    ""]) # from odbcjt32.dll
-    items.append(["msvfw32.dl_",    "",             ["msvfw32", "native,builtin"]])
-    items.append(["mswstr10.dl_",   "msjet40.dll"]) # from odbcjt32.dll
-    items.append(["odbc32gt.dl_",   ""])
-    items.append(["odbc32.dl_",     "",             ["odbc32", "native,builtin"]])
-    items.append(["odbcad32.ex_",   ""])
-    items.append(["odbcbcp.dl_",    ""])
-    items.append(["odbcconf.dl_",   "odbcconf.dll"])
-    items.append(["odbcconf.ex_",   ""])
-    items.append(["odbccp32.dl_",   "",             ["odbccp32", "native,builtin"]])
-    items.append(["odbccr32.dl_",   ""])
-    items.append(["odbccu32.dl_",   "",             ["odbccu32", "native,builtin"]])
-    items.append(["odbcint.dl_",    ""])
-    items.append(["odbcji32.dl_",   ""])
-    items.append(["odbcjt32.dl_",   ""])
-    items.append(["odbcp32r.dl_",   ""])
-    items.append(["odbctrac.dl_",   ""])
-    items.append(["riched20.dl_",   "",             ["riched20", "builtin,native"]])
-    items.append(["shell32.dl_",    "",             ["shell32", "builtin,native"]])
+#    items_append("asms/10/msft/windows/gdiplus/gdiplus.dll", override="gdiplus", mode="builtin,native")
+#    items_append("devmgr.dl_")
+    items_append("dxmasf.dl_",      "dxmasf.dll")
+    items_append("dxtmsft.dl_",     "dxtmsft.dll")
+    items_append("dxtrans.dl_",     "dxtrans.dll")
+    items_append("mciavi32.dl_",    override="mciavi32",    mode="native,builtin")
+    items_append("mciseq.dl_",      override="mciseq",      mode="native,builtin")
+    items_append("mciwave.dl_",     override="mciwave",     mode="native,builtin")
+    items_append("mp4sdmod.dl_",    "mp4sdmod.dll")
+    items_append("mp43dmod.dl_",    "mp43dmod.dll")
+    items_append("mpg4dmod.dl_",    "mpg4dmod.dll")
+    items_append("msacm32.dl_",     override="msacm32",     mode="native,builtin")
+    items_append("msvfw32.dl_",     override="msvfw32",     mode="native,builtin")
+    items_append("riched20.dl_",    override="riched20",    mode="builtin,native")
+    items_append("shell32.dl_",     override="shell32",     mode="builtin,native")
 
     ## ax
-    items.append(["mpg2data.ax_",   "mpg2data.ax"])
-    items.append(["mpg2splt.ax_",   "mpg2splt.ax"])
-    items.append(["mpg4ds32.ax_",   "mpg4ds32.ax"])
-    items.append(["wmv8ds32.ax_",   "wmv8ds32.ax"])
-    items.append(["wmvds32.ax_",    "wmvds32.ax"])
+    items_append("mpg2data.ax_",    "mpg2data.ax")
+    items_append("mpg2splt.ax_",    "mpg2splt.ax")
+    items_append("mpg4ds32.ax_",    "mpg4ds32.ax")
+    items_append("wmv8ds32.ax_",    "wmv8ds32.ax")
+    items_append("wmvds32.ax_",     "wmvds32.ax")
 
     ## ocx
-    items.append(["hhctrl.oc_",     "hhctrl.ocx",   ["hhctrl.ocx", "native,builtin"]])
+    items_append("hhctrl.oc_",      override="hhctrl.ocx",  mode="builtin,native")
 
     ## cpl
-#    items.append(["hdwwiz.cp_",     ""])
-    items.append(["joy.cp_",        "",             ["joy.cpl", "builtin,native"]])
-#    items.append(["mmsys.cp_",      ""])
-    items.append(["odbccp32.cp_",   ""])
-    items.append(["timedate.cp_",   ""])
+    items_append("joy.cp_",         override="joy.cpl",     mode="builtin,native")
+    items_append("odbccp32.cp_")
+    items_append("timedate.cp_")
 
-    #---------------------------------------------------------------------------
+    ## odbc
+    items_append("msjet40.dl_") # from odbcjt32.dll
+    items_append("mswstr10.dl_",    "msjet40.dll") # from odbcjt32.dll
 
-    message('Install extra resources', 1)
+    items_append("odbc32gt.dl_")
+    items_append("odbc32.dl_",      override="odbc32",      mode="native,builtin")
+    items_append("odbcad32.ex_")
+    items_append("odbcbcp.dl_")
+    items_append("odbcconf.dl_",    "odbcconf.dll")
+    items_append("odbcconf.ex_")
+    items_append("odbccp32.dl_",    override="odbccp32",    mode="native,builtin")
+    items_append("odbccr32.dl_")
+    items_append("odbccu32.dl_",    override="odbccu32",    mode="native,builtin")
+    items_append("odbcint.dl_")
+    items_append("odbcji32.dl_")
+    items_append("odbcjt32.dl_")
+    items_append("odbcp32r.dl_")
+    items_append("odbctrac.dl_")
+
     winetricks("glu32")
 
-    for f in items:
-        if len(f) == 3:
-            wine.dlloverride(*f[2])
-        f = "i386/" + f[0]
-        cabextract("-d", w_temp, "-F", f, xpsp3)
-        if f.endswith("_"):
-            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, f))
-        else:
-            src = os.path.join(w_temp, f)
-            dst = os.path.join(W_SYSTEM32, os.path.basename(f))
-            if os.path.exists(dst): os.remove(dst)
-            os.rename(src, dst)
+    for d in items:
+        if d["override"]:
+            wine.override(d["override"], d["mode"])
+        cabextract("-d", w_temp, "-F", "i386/" + d["aname"], xpsp3)
+        if d["aname"].endswith("_"):
+            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, "i386/" + d["aname"]))
 
-    for f in items:
-        f = f[1]
-        if f: wine.regsvr32(f)
+    for d in items:
+        if d["rname"]:
+            wine.regsvr32(d["rname"])
 
     shutil.rmtree(w_temp)
 
