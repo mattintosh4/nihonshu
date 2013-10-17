@@ -86,6 +86,7 @@ def winetricks(*args):
     winetricks_cmd = os.path.normpath(os.path.join(WINE, "../../bin/winetricks"))
     cmd = [winetricks_cmd]
     cmd.extend(args)
+    message(" ".join(cmd))
     subprocess.check_call(cmd)
 
 #-------------------------------------------------------------------------------
@@ -280,7 +281,7 @@ def load_vsrun():
 
 def load_xpsp3():
 
-    def items_append(aname, rname=False, override=False, mode=False):
+    def items_append(archive, regist=False, override=False, mode=False):
         items.append(locals().copy())
 
     message('Install extra resources', 1)
@@ -342,13 +343,18 @@ def load_xpsp3():
     for d in items:
         if d["override"]:
             wine.override(d["override"], d["mode"])
-        cabextract("-d", w_temp, "-F", "i386/" + d["aname"], xpsp3)
-        if d["aname"].endswith("_"):
-            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, "i386/" + d["aname"]))
+        cabextract("-d", w_temp, "-F", "i386/" + d["archive"], xpsp3)
+        if d["archive"].endswith("_"):
+            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, "i386/" + d["archive"]))
+        else:
+            src = os.path.join(w_temp, "i386", d["archive"])
+            dst = os.path.join(W_SYSTEM32,     d["archive"])
+            if os.path.exists(dst): os.remove(dst)
+            os.rename(src, dst)
 
     for d in items:
-        if d["rname"]:
-            wine.regsvr32(d["rname"])
+        if d["regist"]:
+            wine.regsvr32(d["regist"])
 
     shutil.rmtree(w_temp)
 
