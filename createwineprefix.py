@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import shutil
 import subprocess
@@ -93,7 +95,7 @@ def winetricks(*args):
 
 def load_osx_inf():
     inf = wine.get_plugin_path('inf/osx-wine.inf')
-    message('Registration files for Japanese', 1)
+    message('日本語用 INF ファイルを登録しています', 1)
     wine.rundll32(inf)
 
 #-------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ def load_osx_inf():
 def load_7z():
     inf = wine.get_plugin_path('inf/7z.inf')
     if not fileCheck(inf): return
-    message('Registration files for 7-Zip', 1)
+    message('7-Zip 用 INF ファイルを登録しています', 1)
     wine.rundll32(inf)
 
 #-------------------------------------------------------------------------------
@@ -110,7 +112,7 @@ def load_dx9():
 
     def load_dx9_feb2010():
         ### 2k mode ###
-        message('Install DirectX 9 (1/3)', 1)
+        message('DirectX 9 をインストールしています (1/3)', 1)
         wine.rundll32(inf)
         wine.ver_win2k()
         wine.run(src_dx9_feb2010, '/silent', check = False)
@@ -118,12 +120,12 @@ def load_dx9():
         wine.restart()
 
         ### XP mode ###
-        message('Install DirectX 9 (2/3)', 1)
+        message('DirectX 9 をインストールしています (2/3)', 1)
         wine.run(src_dx9_feb2010, '/silent', check = False)
         wine.restart()
 
     def load_dx9_jun2010():
-        message('Install DirectX 9 (3/3)', 1)
+        message('DirectX 9 をインストールしています (3/3)', 1)
         wine.run(src_dx9_jun2010, '/silent', check = False)
         wine.restart()
 
@@ -226,30 +228,30 @@ def load_dx9():
 def load_vsrun():
 
     def load_vbrun6():
-        message('Install VB 6.0 runtime', 1)
+        message('Visual Basic 6.0 ランタイムをインストールしています', 1)
         wine.rundll32(inf)
         wine.run(src_vbrun6, '/Q', check = False)
         wine.restart()
 
     def load_vcrun6():
-        message('Install VC 6.0 runtime', 1)
+        message('Visual C++ 6.0 ランタイムをインストールしています', 1)
         wine.run(src_vcrun6, '/Q', check = False)
         cabextract('-d', W_SYSTEM32, '-F' 'mfc42u.dll', src_vcrun6)
         wine.regsvr32('mfc42u.dll')
         wine.restart()
 
     def load_vcrun2005():
-        message('Install VC 2005 runtime', 1)
+        message('Visual C++ 2005 ランタイムをインストールしています', 1)
         wine.run(src_vcrun2005, '/q')
         wine.restart()
 
     def load_vcrun2008():
-        message('Install VC 2008 runtime', 1)
+        message('Visual C++ 2008 ランタイムをインストールしています', 1)
         wine.run(src_vcrun2008, '/q')
         wine.restart()
 
     def load_vcrun2010():
-        message('Install VC 2010 runtime', 1)
+        message('Visual C++ 2010 ランタイムをインストールしています', 1)
         wine.run(src_vcrun2010, '/q')
         wine.restart()
 
@@ -284,7 +286,7 @@ def load_xpsp3():
     def items_append(archive, regist=False, override=False, mode=False):
         items.append(locals().copy())
 
-    message('Install extra resources', 1)
+    message("Windows XP Service Pack 3 から追加ファイルをインストールしています", 1)
     xpsp3  = os.path.expanduser('~/.cache/winetricks/xpsp3jp/WindowsXP-KB936929-SP3-x86-JPN.exe')
     w_temp = os.path.join(W_TEMP, 'xpsp3')
     items  = []
