@@ -290,74 +290,121 @@ def load_xpsp3():
     xpsp3  = os.path.expanduser('~/.cache/winetricks/xpsp3jp/WindowsXP-KB936929-SP3-x86-JPN.exe')
     w_temp = os.path.join(W_TEMP, 'xpsp3')
     items  = []
+
 #    items_append("asms/10/msft/windows/gdiplus/gdiplus.dll", override="gdiplus", mode="builtin,native")
 #    items_append("devmgr.dl_")
-    items_append("dxmasf.dl_",      "dxmasf.dll")
-    items_append("dxtmsft.dl_",     "dxtmsft.dll")
-    items_append("dxtrans.dl_",     "dxtrans.dll")
-    items_append("mciavi32.dl_",    override="mciavi32",    mode="native,builtin")
-    items_append("mciseq.dl_",      override="mciseq",      mode="native,builtin")
-    items_append("mciwave.dl_",     override="mciwave",     mode="native,builtin")
-    items_append("mp4sdmod.dl_",    "mp4sdmod.dll")
-    items_append("mp43dmod.dl_",    "mp43dmod.dll")
-    items_append("mpg4dmod.dl_",    "mpg4dmod.dll")
-    items_append("msacm32.dl_",     override="msacm32",     mode="native,builtin")
-    items_append("msvfw32.dl_",     override="msvfw32",     mode="native,builtin")
-    items_append("riched20.dl_",    override="riched20",    mode="builtin,native")
-    items_append("shell32.dl_",     override="shell32",     mode="builtin,native")
+    items_append("dxmasf.dl_"       ,"dxmasf.dll")
+    items_append("dxtmsft.dl_"      ,"dxtmsft.dll")
+    items_append("dxtrans.dl_"      ,"dxtrans.dll")
+    items_append("mciavi32.dl_"     ,override="mciavi32"    ,mode="native,builtin")
+    items_append("mciseq.dl_"       ,override="mciseq"      ,mode="native,builtin")
+    items_append("mciwave.dl_"      ,override="mciwave"     ,mode="native,builtin")
+    items_append("msacm32.dl_"      ,override="msacm32"     ,mode="native,builtin")
+    items_append("msvfw32.dl_"      ,override="msvfw32"     ,mode="native,builtin")
+    items_append("riched20.dl_"     ,override="riched20"    ,mode="builtin,native")
+    items_append("shell32.dl_"      ,override="shell32"     ,mode="builtin,native")
 
     ## ax
-    items_append("mpg2data.ax_",    "mpg2data.ax")
-    items_append("mpg2splt.ax_",    "mpg2splt.ax")
-    items_append("mpg4ds32.ax_",    "mpg4ds32.ax")
-    items_append("wmv8ds32.ax_",    "wmv8ds32.ax")
-    items_append("wmvds32.ax_",     "wmvds32.ax")
+    items_append("mpg2data.ax_"     ,"mpg2data.ax")
+    items_append("mpg2splt.ax_"     ,"mpg2splt.ax")
+    items_append("mpg4ds32.ax_"     ,"mpg4ds32.ax")
+    items_append("wmv8ds32.ax_"     ,"wmv8ds32.ax")
+    items_append("wmvds32.ax_"      ,"wmvds32.ax")
 
     ## ocx
-    items_append("hhctrl.oc_",      override="hhctrl.ocx",  mode="builtin,native")
+    items_append("hhctrl.oc_"       ,override="hhctrl.ocx"  ,mode="builtin,native")
 
     ## cpl
-    items_append("joy.cp_",         override="joy.cpl",     mode="builtin,native")
+    items_append("joy.cp_"          ,override="joy.cpl"     ,mode="builtin,native")
     items_append("odbccp32.cp_")
     items_append("timedate.cp_")
 
     ## odbc
-    items_append("msjet40.dl_") # from odbcjt32.dll
-    items_append("mswstr10.dl_",    "msjet40.dll") # from odbcjt32.dll
+    items_append("msjet40.dl_"      ,"msjet40.dll") # from odbcjt32.dll
+    items_append("mswstr10.dl_") # from odbcjt32.dll
 
     items_append("odbc32gt.dl_")
-    items_append("odbc32.dl_",      override="odbc32",      mode="native,builtin")
+    items_append("odbc32.dl_"       ,override="odbc32"      ,mode="native,builtin")
     items_append("odbcad32.ex_")
     items_append("odbcbcp.dl_")
-    items_append("odbcconf.dl_",    "odbcconf.dll")
+    items_append("odbcconf.dl_"     ,"odbcconf.dll")
     items_append("odbcconf.ex_")
-    items_append("odbccp32.dl_",    override="odbccp32",    mode="native,builtin")
+    items_append("odbccp32.dl_"     ,override="odbccp32"    ,mode="native,builtin")
     items_append("odbccr32.dl_")
-    items_append("odbccu32.dl_",    override="odbccu32",    mode="native,builtin")
+    items_append("odbccu32.dl_"     ,override="odbccu32"    ,mode="native,builtin")
     items_append("odbcint.dl_")
     items_append("odbcji32.dl_")
     items_append("odbcjt32.dl_")
     items_append("odbcp32r.dl_")
     items_append("odbctrac.dl_")
 
+    ## Windows Media Player
+    items_append("asferror.dl_")
+    items_append("blackbox.dl_"     ,"blackbox.dll")
+    items_append("cewmdm.dl_"       ,"cewmdm.dll")
+    items_append("drmstor.dl_"      ,"drmstor.dll")
+    items_append("drmv2clt.dl_"     ,"drmv2clt.dll")
+    items_append("l3codeca.ac_"     ,"l3codeca.acm")
+    items_append("laprxy.dl_"       ,"laprxy.dll")
+    items_append("logagent.ex_")
+    items_append("mp4sdmod.dl_"     ,"mp4sdmod.dll")
+    items_append("mp43dmod.dl_"     ,"mp43dmod.dll")
+    items_append("mpg4dmod.dl_"     ,"mpg4dmod.dll")
+    items_append("msdmo.dl_")
+    items_append("msnetobj.dl_"     ,"msnetobj.dll")
+    items_append("mspmsnsv.dl_"     ,"mspmsnsv.dll")
+    items_append("mspmsp.dl_"       ,"mspmsp.dll")
+    items_append("msscp.dl_"        ,"msscp.dll")
+    items_append("mswmdm.dl_"       ,"mswmdm.dll")
+    items_append("qasf.dl_"         ,"qasf.dll")
+    items_append("wmadmod.dl_"      ,"wmadmod.dll")
+    items_append("wmadmoe.dl_"      ,"wmadmoe.dll")
+    items_append("wmasf.dl_")
+    items_append("wmdmlog.dl_"      ,"wmdmlog.dll")
+    items_append("wmdmps.dl_"       ,"wmdmps.dll")
+    items_append("wmerror.dl_")
+    items_append("wmidx.dl_")
+    items_append("wmnetmgr.dl_"     ,"wmnetmgr.dll")
+    items_append("wmpasf.dl_"       ,"wmpasf.dll")
+    items_append("wmpcd.dl_"        ,"wmpcd.dll")
+    items_append("wmpcore.dl_"      ,"wmpcore.dll")
+    items_append("wmpdxm.dl_"       ,"wmpdxm.dll")
+    items_append("wmploc.dl_")
+    items_append("wmpshell.dl_"     ,"wmpshell.dll")
+    items_append("wmpui.dl_"        ,"wmpui.dll")
+    items_append("wmp.dl_"          ,"wmp.dll")
+    items_append("wmp.oc_"          ,"wmp.ocx")
+    items_append("wmsdmod.dl_"      ,"wmsdmod.dll")
+    items_append("wmsdmoe2.dl_"     ,"wmsdmoe2.dll")
+    items_append("wmspdmod.dl_"     ,"wmspdmod.dll")
+    items_append("wmspdmoe.dl_"     ,"wmspdmoe.dll")
+    items_append("wmvcore.dl_"      ,"wmvcore.dll"      ,"wmvcore"  ,"native,builtin")
+    items_append("wmvdmod.dl_"      ,"wmvdmod.dll")
+    items_append("wmvdmoe2.dl_"     ,"wmvdmoe2.dll")
+
+#    items_append("custsat.dl_")     # Program Files
+#    items_append("mpvis.dl_")       # Program Files
+#    items_append("npdrmv2.dl_")     # Program Files
+#    items_append("npdrmv2.zi_")     # Program Files
+#    items_append("wmpband.dl_")     # Program Files
+#    items_append("wmplayer.ex_")    # program Files
+#    items_append("wmpns.dl_")       # Program Files
+
     winetricks("glu32")
 
+    registerdlls = []
     for d in items:
-        if d["override"]:
-            wine.override(d["override"], d["mode"])
+        d["regist"]   and registerdlls.append(d["regist"])
+        d["override"] and wine.override(d["override"], d["mode"])
         cabextract("-d", w_temp, "-F", "i386/" + d["archive"], xpsp3)
         if d["archive"].endswith("_"):
             cabextract("-d", W_SYSTEM32, os.path.join(w_temp, "i386/" + d["archive"]))
         else:
             src = os.path.join(w_temp, "i386", d["archive"])
             dst = os.path.join(W_SYSTEM32,     d["archive"])
-            if os.path.exists(dst): os.remove(dst)
+            os.path.exists(dst) and os.remove(dst)
             os.rename(src, dst)
-
-    for d in items:
-        if d["regist"]:
-            wine.regsvr32(d["regist"])
-
+    wine.regsvr32(*registerdlls)
     shutil.rmtree(w_temp)
 
 #-------------------------------------------------------------------------------
