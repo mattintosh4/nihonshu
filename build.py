@@ -279,8 +279,8 @@ def install_plugin():
     makedirs(destroot)
 
     # INSTALL RUNTIME ----------------------------------------------------------
-    p7zip('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010)
-    p7zip('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*200?*', '-x!Feb2010*')
+    p7zip('x', '-o' + os.path.join(destroot, 'directx9/feb2010'), dx9_feb2010, '-x!*_x64.cab')
+    p7zip('x', '-o' + os.path.join(destroot, 'directx9/jun2010'), dx9_jun2010, '-x!*_x64.cab', '-x!*200?*', '-x!Feb2010*')
     shutil.copytree(vcrun2005, os.path.join(destroot, 'vcrun2005sp1_jun2011'))
     shutil.copytree(vcrun2008, os.path.join(destroot, 'vcrun2008sp1_jun2011'))
     shutil.copytree(vcrun2010, os.path.join(destroot, 'vcrun2010sp1_aug2011'))
