@@ -692,8 +692,8 @@ def build_wine(name = 'wine'):
             '--x-lib=/opt/X11/lib',
             'CC='  + CLANG,
             'CXX=' + CLANGXX,
-            'CFLAGS="-arch i386 {0}"'.format(os.getenv('CFLAGS')),
-            'CXXFLAGS="-arch i386 {0}"'.format(os.getenv('CXXFLAGS')),
+            'CFLAGS="-arch i386 %s"'   % os.getenv('CFLAGS'),
+            'CXXFLAGS="-arch i386 %s"' % os.getenv('CXXFLAGS'),
             prefix = W_PREFIX,
         )
         make_install(archive = name)
