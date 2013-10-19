@@ -15,13 +15,14 @@ class Wine(object):
         self.set_windir()
 
     def set_windir(self):
-        global W_WINDOWS, W_SYSTEM32, W_TEMP
+        global W_WINDOWS, W_FONTS, W_SYSTEM32, W_TEMP
 
-        W_WINDOWS  = subprocess.Popen([WINE, 'winepath.exe', 'c:\\windows'],
+        W_WINDOWS  = subprocess.Popen([WINE, "winepath.exe", "c:\\windows"],
                                        stdout=subprocess.PIPE,
-                                       stderr=open(os.devnull, 'w')).communicate()[0].strip()
-        W_SYSTEM32 = os.path.join(W_WINDOWS, 'system32')
-        W_TEMP     = os.path.join(W_WINDOWS, 'temp')
+                                       stderr=open(os.devnull, "w")).communicate()[0].strip()
+        W_FONTS    = os.path.join(W_WINDOWS, "Fonts")
+        W_SYSTEM32 = os.path.join(W_WINDOWS, "system32")
+        W_TEMP     = os.path.join(W_WINDOWS, "temp")
 
     def run(self, *args, **kwargs):
         cmd = [WINE]
