@@ -237,7 +237,7 @@ def load_vsrun():
     def load_vcrun6():
         message('Visual C++ 6.0 ランタイムをインストールしています', 1)
         wine.run(src_vcrun6, '/Q', check = False)
-        cabextract('-d', W_SYSTEM32, '-F' 'mfc42u.dll', src_vcrun6)
+        cabextract('-d', W_SYSTEM32, '-F', 'mfc42u.dll', src_vcrun6)
         wine.regsvr32('mfc42u.dll')
         wine.restart()
 
