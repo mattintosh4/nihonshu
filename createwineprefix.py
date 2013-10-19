@@ -291,12 +291,12 @@ def load_xpsp3():
     items  = []
 
     def items_append(archive, regist=False, override=False, mode=False):
+        archive = os.path.join("i386", archive)
         items.append(locals().copy())
 
     def _dll_devel():
+#        items_append("asms/10/msft/windows/gdiplus/gdiplus.dll" ,False ,"gdiplus" ,"builtin,native")
         items_append("ddrawex.dl_"  ,"ddrawex.dll"  ,"ddrawex"      ,"native")
-        items_append("asms/10/msft/windows/gdiplus/gdiplus.dll"
-                                    ,False          ,"gdiplus"      ,"builtin,native")
         items_append("mciavi32.dl_" ,False          ,"mciavi32"     ,"native")
         items_append("mciqtz32.dl_" ,False          ,"mciqtz32"     ,"native")
         items_append("mciseq.dl_"   ,False          ,"mciseq"       ,"native")
@@ -442,12 +442,14 @@ def load_xpsp3():
     for d in items:
         d["regist"]   and registerdlls.append(d["regist"])
         d["override"] and wine.override(d["override"], d["mode"])
-        cabextract("-d", w_temp, "-F", "i386/" + d["archive"], xpsp3)
+        cabextract("-d", w_temp, "-F", d["archive"], xpsp3)
         if d["archive"].endswith("_"):
-            cabextract("-d", W_SYSTEM32, os.path.join(w_temp, "i386/" + d["archive"]))
+            src = os.path.join(w_temp, d["archive"])
+            dst = W_SYSTEM32
+            cabextract("-d", dst, src)
         else:
-            src = os.path.join(w_temp, "i386", d["archive"])
-            dst = os.path.join(W_SYSTEM32,     d["archive"])
+            src = os.path.join(w_temp, d["archive"])
+            dst = os.path.join(W_SYSTEM32, os.path.basename(d["archive"]))
             os.path.exists(dst) and os.remove(dst)
             os.rename(src, dst)
     wine.regsvr32(*registerdlls)
