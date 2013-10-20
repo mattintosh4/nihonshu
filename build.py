@@ -732,9 +732,7 @@ def build_winetricks(name = 'winetricks'):
 
     message(name)
     reposcopy(name)
-    for f in os.listdir(PATCHROOT):
-        if f.startswith('winetricks_'):
-            patch(os.path.join(PATCHROOT, f))
+    git_checkout("edit")
     vsh("""make install PREFIX={W_PREFIX}""".format(**globals()))
 
     ### RENAME EXECUTABLE ###
@@ -743,7 +741,8 @@ def build_winetricks(name = 'winetricks'):
 
     ### INSTALL WINETRICKS LOADER ###
     installFile(os.path.join(PROJECT_ROOT, 'winetricksloader.py'),
-                os.path.join(W_BINDIR,     'winetricks'), 0755)
+                os.path.join(W_BINDIR,     'winetricks'),
+                0755)
 
     installDoc(
         name,
