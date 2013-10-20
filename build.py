@@ -660,18 +660,6 @@ def build_SDL(name = 'SDL'):
     configure()
     make_install(archive = name)
 
-# UNIXODBC ---------------------------------------------------------------------
-
-def build_unixodbc(name = 'unixODBC'):
-    message(name)
-    if binCheck(name): return
-    reposcopy(name)
-    autoreconf(
-        '-f',
-    )
-    configure()
-    make_install(archive = name)
-
 # WINE -------------------------------------------------------------------------
 
 def build_wine(name = 'wine'):
@@ -892,7 +880,6 @@ if __name__ == '__main__':
     build_xz()
     build_gettext()
     build_readline()
-    build_unixodbc()
     build_gmp()
     build_libffi()
     build_glib()

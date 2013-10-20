@@ -307,24 +307,7 @@ def load_xpsp3():
         items_append("msvfw32.dl_"  ,False          ,"msvfw32"      ,"native")
         items_append("riched20.dl_" ,False          ,"riched20"     ,"builtin,native")
 
-        ## odbc
-        items_append("msjet40.dl_"  ,"msjet40.dll") # from odbcjt32.dll
-        items_append("mswstr10.dl_")                # from odbcji32.dll
-        items_append("odbc32gt.dl_")
-        items_append("odbc32.dl_"   ,False          ,"odbc32"       ,"native,builtin")
-        items_append("odbcad32.ex_")
-        items_append("odbcbcp.dl_")
-        items_append("odbcconf.dl_" ,"odbcconf.dll")
-        items_append("odbcconf.ex_")
-        items_append("odbccp32.dl_" ,False          ,"odbccp32"     ,"native,builtin")
-        items_append("odbccr32.dl_")
-        items_append("odbccu32.dl_" ,False          ,"odbccu32"     ,"native,builtin")
-        items_append("odbcint.dl_")
-        items_append("odbcji32.dl_")
-        items_append("odbcjt32.dl_")
-        items_append("odbcp32r.dl_")
-        items_append("odbctrac.dl_")
-        items_append("odbccp32.cp_")
+        winetricks("odbc")
 
     def _dll_top_priority():
         items_append("mfc40u.dl_"   ,"mfc40u.dll")
