@@ -4,3 +4,6 @@
 [submodule "osx-wine-patch"]
 	path = osx-wine-patch
 	url = https://github.com/mattintosh4/osx-wine-patch.git
+[submodule "src/winetricks"]
+	path = src/winetricks
+	url = https://mattintosh4@github.com/mattintosh4/winetricks.git
