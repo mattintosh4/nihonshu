@@ -297,16 +297,13 @@ def load_xpsp3():
     def _dll_devel():
 #        items_append("asms/10/msft/windows/gdiplus/gdiplus.dll" ,False ,"gdiplus" ,"builtin,native")
         items_append("ddrawex.dl_"  ,"ddrawex.dll"  ,"ddrawex"      ,"native")
-        items_append("mciavi32.dl_" ,False          ,"mciavi32"     ,"native")
-        items_append("mciqtz32.dl_" ,False          ,"mciqtz32"     ,"native")
-        items_append("mciseq.dl_"   ,False          ,"mciseq"       ,"native")
-        items_append("mciwave.dl_"  ,False          ,"mciwave"      ,"native")
         items_append("msacm32.dl_"  ,False          ,"msacm32"      ,"native")
         items_append("msadp32.ac_"  ,False          ,"msadp32.acm"  ,"native")
         items_append("msaud32.ac_")
-        items_append("msvfw32.dl_"  ,False          ,"msvfw32"      ,"native")
         items_append("riched20.dl_" ,False          ,"riched20"     ,"builtin,native")
 
+        winetricks("mci")
+        winetricks("vfw")
         winetricks("odbc")
 
     def _dll_top_priority():
@@ -372,8 +369,7 @@ def load_xpsp3():
         items_append("dxmasf.dl_"   ,"dxmasf.dll")
         items_append("dxtmsft.dl_"  ,"dxtmsft.dll")
         items_append("dxtrans.dl_"  ,"dxtrans.dll")
-        items_append("shell32.dl_"  ,False          ,"shell32"      ,"builtin,native")
-    
+
         ## ocx
         items_append("hhctrl.oc_"   ,False          ,"hhctrl.ocx"   ,"native")
     
@@ -415,7 +411,10 @@ def load_xpsp3():
     #---------------------------------------------------------------------------
 
     message("Windows XP Service Pack 3 から追加ファイルをインストールしています", 1)
+
     winetricks("glu32")
+    winetricks("shell32")
+
     if not os.path.exists(xpsp3): return
     _font()
     _dll_top_priority()
